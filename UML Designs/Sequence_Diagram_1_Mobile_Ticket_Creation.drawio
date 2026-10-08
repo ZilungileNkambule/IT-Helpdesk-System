@@ -1,0 +1,103 @@
+<mxfile host="Electron" agent="Gemini">
+  <diagram id="seq1_diag" name="Sequence Diagram 1 - Mobile Ticket Creation">
+    <mxGraphModel dx="860" dy="571" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="950" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="seq1_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#1A365D;" value="&lt;div style=&quot;text-align: start; font-family: &amp;quot;Segoe UI&amp;quot;; line-height: 20px;&quot;&gt;&lt;div style=&quot;line-height: 20px;&quot;&gt;&lt;font style=&quot;color: light-dark(rgb(0, 0, 0), rgb(0, 0, 0)); font-size: 18px;&quot;&gt;Mobile IT Support Ticket Creation and Submission Process&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="900" x="200" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_staff_head" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#1A365D;strokeColor=#1A365D;fontColor=#FFFFFF;fontStyle=1;fontSize=11;align=center;" value="Staff (End User)&amp;#xa;[Mobile Actor]" vertex="1">
+          <mxGeometry height="55" width="160" x="80" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_staff_line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;strokeColor=#A0AEC0;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="135" as="sourcePoint" />
+            <mxPoint x="160" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ll_flutter_head" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#0D9488;strokeColor=#0D9488;fontColor=#FFFFFF;fontStyle=1;fontSize=11;align=center;" value="Flutter Mobile App&amp;#xa;[Client UI]" vertex="1">
+          <mxGeometry height="55" width="160" x="380" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_flutter_line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;strokeColor=#A0AEC0;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="135" as="sourcePoint" />
+            <mxPoint x="460" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ll_storage_head" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#3182CE;strokeColor=#3182CE;fontColor=#FFFFFF;fontStyle=1;fontSize=11;align=center;" value="Supabase Storage&amp;#xa;[Media Bucket]" vertex="1">
+          <mxGeometry height="55" width="160" x="700" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_storage_line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;strokeColor=#A0AEC0;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="780" y="135" as="sourcePoint" />
+            <mxPoint x="780" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ll_db_head" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#4C51BF;strokeColor=#4C51BF;fontColor=#FFFFFF;fontStyle=1;fontSize=11;align=center;" value="&lt;span style=&quot;text-align: start; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(0, 0, 0));&quot;&gt;&lt;font&gt;Supabase PostgreSQL Database&lt;/font&gt;&lt;/span&gt;&lt;div&gt;&lt;font&gt;&amp;nbsp;[Supabase Engine]&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="160" x="1020" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_db_line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;strokeColor=#A0AEC0;strokeWidth=1.5;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1100" y="135" as="sourcePoint" />
+            <mxPoint x="1100" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step_0" edge="1" parent="1" style="html=1;strokeColor=#2D3748;strokeWidth=1.6;fontColor=#2D3748;fontStyle=1;fontSize=10;verticalAlign=bottom;align=center;dashed=0;endFill=1;endArrow=block;" value="1: Open form &amp; enter incident details (category, priority, description)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="180" as="sourcePoint" />
+            <mxPoint x="460" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step_1" edge="1" parent="1" style="html=1;strokeColor=#2D3748;strokeWidth=1.6;fontColor=#2D3748;fontStyle=1;fontSize=10;verticalAlign=bottom;align=center;dashed=0;endFill=1;endArrow=block;" value="2: [opt] Select diagnostic photo attachment">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="240" as="sourcePoint" />
+            <mxPoint x="460" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step_2" edge="1" parent="1" style="html=1;strokeColor=#0D9488;strokeWidth=1.6;fontColor=#0D9488;fontStyle=1;fontSize=10;verticalAlign=bottom;align=center;dashed=0;endFill=1;endArrow=block;" value="3: uploadPhoto(file, bucket=&#39;attachments&#39;)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="310" as="sourcePoint" />
+            <mxPoint x="780" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step_3" edge="1" parent="1" style="html=1;strokeColor=#0D9488;strokeWidth=1.6;fontColor=#0D9488;fontStyle=1;fontSize=10;verticalAlign=bottom;align=center;dashed=1;endFill=0;endArrow=open;" value="4: 201 Created (return publicMediaUrl)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="780" y="380" as="sourcePoint" />
+            <mxPoint x="460" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step_4" edge="1" parent="1" style="html=1;strokeColor=#1A365D;strokeWidth=1.6;fontColor=#1A365D;fontStyle=1;fontSize=10;verticalAlign=bottom;align=center;dashed=0;endFill=1;endArrow=block;" value="5: Click &#39;Submit Ticket&#39;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="450" as="sourcePoint" />
+            <mxPoint x="460" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step_5" edge="1" parent="1" style="html=1;strokeColor=#4C51BF;strokeWidth=1.6;fontColor=#4C51BF;fontStyle=1;fontSize=10;verticalAlign=bottom;align=center;dashed=0;endFill=1;endArrow=block;" value="6: INSERT INTO tickets (user_id, category_id, description, media_url)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="530" as="sourcePoint" />
+            <mxPoint x="1100" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step_6" edge="1" parent="1" style="html=1;strokeColor=#4C51BF;strokeWidth=1.6;fontColor=#4C51BF;fontStyle=1;fontSize=10;verticalAlign=bottom;align=center;dashed=1;endFill=0;endArrow=open;" value="7: 201 Created (ticket_id, ticket_ref, created_at, status=&#39;Open&#39;)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1100" y="690" as="sourcePoint" />
+            <mxPoint x="460" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step_7" edge="1" parent="1" style="html=1;strokeColor=#2D3748;strokeWidth=1.6;fontColor=#2D3748;fontStyle=1;fontSize=10;verticalAlign=bottom;align=center;dashed=1;endFill=0;endArrow=open;" value="8: Display success confirmation &amp; assigned Ticket Ref">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="460" y="750" as="sourcePoint" />
+            <mxPoint x="160" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seq1_note" parent="1" style="shape=note;whiteSpace=wrap;html=1;size=14;verticalAlign=middle;align=left;spacingLeft=8;fillColor=#FEFCBF;strokeColor=#D69E2E;fontColor=#744210;fontStyle=1;fontSize=10;" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt; Operations Triggered:&amp;#xa;• Generate Ticket ID: &#39;TICK-&#39; || nextval(&#39;seq&#39;)&amp;#xa;• Timestamp Ticket: created_at = NOW()" vertex="1">
+          <mxGeometry height="75" width="290" x="920" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="Noz5ounaAkneZ6K_fKta-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b style=&quot;font-family: &amp;quot;Segoe UI&amp;quot;; text-align: start;&quot;&gt;&lt;font style=&quot;font-size: 13px; color: light-dark(rgb(0, 0, 0), rgb(0, 0, 0));&quot;&gt;Precondition: &lt;span style=&quot;background-color: transparent;&quot;&gt;User is authenticated and logged into the system.&lt;/span&gt;&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="410" x="20" y="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
