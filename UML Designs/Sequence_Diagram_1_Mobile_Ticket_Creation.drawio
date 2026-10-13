@@ -1,0 +1,100 @@
+<mxfile host="Electron" agent="Grok">
+  <diagram id="seq1" name="Sequence Diagram 1">
+    <mxGraphModel dx="1642" dy="754" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=16;fontStyle=1;align=center;" value="Sequence Diagram 1: Mobile Ticket Creation" vertex="1">
+          <mxGeometry height="30" width="600" x="400" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="staff" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#1a365d;fontColor=#ffffff;" value="Staff (End User)&#xa;[Actor]" vertex="1">
+          <mxGeometry height="600" width="120" x="80" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="flutter" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#82b366;fontColor=#ffffff;" value="Flutter Mobile App&#xa;[Client UI]" vertex="1">
+          <mxGeometry height="600" width="140" x="280" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="api" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#6c8ebf;fontColor=#ffffff;" value="ASP.NET Core API&#xa;[Business Logic]" vertex="1">
+          <mxGeometry height="600" width="150" x="500" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="m6" edge="1" parent="api" source="api" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="6. INSERT ticket + generate Ticket ID + timestamp">
+          <mxGeometry relative="1" x="0.0067" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points" />
+            <mxPoint x="77" y="369" as="sourcePoint" />
+            <mxPoint x="522.5" y="369" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="storage" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#6c8ebf;fontColor=#ffffff;" value="Supabase Storage&#xa;[Media Bucket]" vertex="1">
+          <mxGeometry height="600" width="140" x="720" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#6c8ebf;fontColor=#ffffff;" value="Supabase PostgreSQL&#xa;[Database]" vertex="1">
+          <mxGeometry height="600" width="150" x="940" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="1. Open form &amp;amp; enter incident details&lt;div&gt;&amp;nbsp;(category, priority, description)&lt;/div&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="139.49999999999977" y="210" as="sourcePoint" />
+            <mxPoint x="349.4999999999998" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="2. [opt] Select diagnostic photo attachment">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="139.49999999999977" y="280" as="sourcePoint" />
+            <mxPoint x="349.4999999999998" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pre" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Precondition: User is authenticated and logged into the system." vertex="1">
+          <mxGeometry height="40" width="400" x="70" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="m3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="3. POST /api/tickets&lt;div&gt;&amp;nbsp;(ticket data + optional photo)&lt;/div&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="349.4999999999998" y="300" as="sourcePoint" />
+            <mxPoint x="574.4999999999998" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aksUmXBSmmZwzftPfN0B-1" edge="1" parent="1" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=top;rounded=0;" value="">
+          <mxGeometry relative="1" x="0.125" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="210" />
+              <mxPoint x="350" y="210" />
+            </Array>
+            <mxPoint x="440" y="210" as="sourcePoint" />
+            <mxPoint x="580" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endFill=0;rounded=0;" value="5. return mediaUrl">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="788" y="410" as="sourcePoint" />
+            <mxPoint x="572.9999999999998" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="4. uploadPhoto(file) [if photo present]">
+          <mxGeometry relative="1" x="0.0744" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <mxPoint x="574.4999999999998" y="360" as="sourcePoint" />
+            <mxPoint x="789.5" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endFill=0;rounded=0;" value="9. Display success confirmation &amp; Ticket Ref">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="349.4999999999998" y="600" as="sourcePoint" />
+            <mxPoint x="139.49999999999977" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endFill=0;rounded=0;" value="7. return ticket_id, ticket_ref, created_at, status=&#39;Open&#39;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="1010" y="520" as="sourcePoint" />
+            <mxPoint x="569.9999999999998" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endFill=0;rounded=0;" value="8. 201 Created (ticket details)">
+          <mxGeometry relative="1" x="0.0178" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <mxPoint x="574.4999999999998" y="560" as="sourcePoint" />
+            <mxPoint x="349.4999999999998" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

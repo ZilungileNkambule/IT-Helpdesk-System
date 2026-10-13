@@ -1,0 +1,146 @@
+<mxfile host="Electron" agent="Grok">
+  <diagram id="seq2" name="Sequence Diagram 2">
+    <mxGraphModel dx="782" dy="525" grid="1" gridSize="10" guides="0" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=16;fontStyle=1;align=center;" value="Sequence Diagram 2: Technician Triage, Assignment &amp; Resolution" vertex="1">
+          <mxGeometry height="30" width="700" x="350" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tech" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#1a365d;fontColor=#ffffff;" value="Technician&#xa;[IT Support]" vertex="1">
+          <mxGeometry height="650" width="120" x="60" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="m6" edge="1" parent="tech" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="7. Click Assign to Me">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="59.5" y="280" as="sourcePoint" />
+            <mxPoint x="279.5" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" edge="1" parent="tech" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="11. Enter Resolution Notes &amp;amp; Resolve">
+          <mxGeometry relative="1" x="0.0045" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="59.5" y="400" as="sourcePoint" />
+            <mxPoint x="279.5" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dash" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#82b366;fontColor=#ffffff;" value="ASP.NET Core Dashboard&#xa;[Web UI]" vertex="1">
+          <mxGeometry height="650" width="160" x="260" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="EwiIyWcALGQuP0gTVpJo-2" edge="1" parent="dash" source="api" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=sequenceEdgeStyle;libavoidRouting=0;curved=0;rounded=0;" value="6. Display Incident List">
+          <mxGeometry relative="1" x="0.0618" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="120" y="240" />
+            </Array>
+            <mxPoint x="160" y="240" as="sourcePoint" />
+            <mxPoint x="80" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EwiIyWcALGQuP0gTVpJo-6" edge="1" parent="dash" source="api" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=sequenceEdgeStyle;libavoidRouting=0;curved=0;rounded=0;" value="10 Success">
+          <mxGeometry relative="1" x="-0.0235" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="120" y="360" />
+            </Array>
+            <mxPoint x="160" y="360" as="sourcePoint" />
+            <mxPoint x="80" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m11" edge="1" parent="dash" source="api" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endFill=0;rounded=0;" value="15. Ticket resolved successfully">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="510" as="sourcePoint" />
+            <mxPoint x="80" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="api" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#6c8ebf;fontColor=#ffffff;" value="ASP.NET Core API&#xa;[TicketController]" vertex="1">
+          <mxGeometry height="650" width="150" x="500" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="m7" edge="1" parent="api" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="9. UPDATE ticket SET technician_id,&amp;nbsp;&lt;div&gt;status=&#39;In Progress&#39;&lt;/div&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="74.5" y="320" as="sourcePoint" />
+            <mxPoint x="304.5" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EwiIyWcALGQuP0gTVpJo-1" edge="1" parent="api" source="db" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;edgeStyle=sequenceEdgeStyle;libavoidRouting=0;curved=0;rounded=0;" value="5. Return Data">
+          <mxGeometry relative="1" x="0.0618" as="geometry">
+            <mxPoint x="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="187.25" y="240" />
+            </Array>
+            <mxPoint x="150" y="240" as="sourcePoint" />
+            <mxPoint x="70" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EwiIyWcALGQuP0gTVpJo-3" edge="1" parent="api" source="dash" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=top;rounded=0;" value="8. POST/PUT assign ticket">
+          <mxGeometry relative="1" x="-0.58" y="20" as="geometry">
+            <mxPoint x="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="-10" y="310" />
+              <mxPoint x="-10" y="310" />
+            </Array>
+            <mxPoint x="-80" y="310" as="sourcePoint" />
+            <mxPoint x="80" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" edge="1" parent="api" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="13. UPDATE status=&#39;Resolved&#39;, notes,&lt;div&gt;&amp;nbsp;timestamp&lt;/div&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="75" y="470" as="sourcePoint" />
+            <mxPoint x="305" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="db" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#6c8ebf;fontColor=#ffffff;" value="Supabase PostgreSQL&#xa;[Database]" vertex="1">
+          <mxGeometry height="650" width="150" x="730" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="staff" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#a0aec0;fontColor=#000000;" value="Staff (Mobile)&#xa;[End User]" vertex="1">
+          <mxGeometry height="650" width="130" x="960" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Save Status Change: Updates are persisted with timestamp." vertex="1">
+          <mxGeometry height="60" width="200" x="810" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="m2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="2. GET /api/tickets/open">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="337" y="200" as="sourcePoint" />
+            <mxPoint x="572" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="3. SELECT open tickets">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="575" y="240" as="sourcePoint" />
+            <mxPoint x="805" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="1. Navigate to View Open Tickets">
+          <mxGeometry relative="1" x="0.0045" y="5" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <mxPoint x="119.5" y="160" as="sourcePoint" />
+            <mxPoint x="339.5" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endFill=0;rounded=0;" value="4. Return open ticket records">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="280" as="sourcePoint" />
+            <mxPoint x="575" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" value="14. Realtime Push Notification&amp;nbsp;&lt;div&gt;(ticket resolved)&lt;/div&gt;">
+          <mxGeometry relative="1" x="0.0244" as="geometry">
+            <mxPoint x="-1" as="offset" />
+            <Array as="points">
+              <mxPoint x="915.5" y="550" />
+            </Array>
+            <mxPoint x="800" y="550" as="sourcePoint" />
+            <mxPoint x="1025.5" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="EwiIyWcALGQuP0gTVpJo-9" edge="1" parent="1" source="dash" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=top;rounded=0;exitX=0.512;exitY=0.647;exitDx=0;exitDy=0;exitPerimeter=0;" value="12. PUT Resolve with notes">
+          <mxGeometry relative="1" x="-0.681" y="21" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="420" y="500" as="sourcePoint" />
+            <mxPoint x="580" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
