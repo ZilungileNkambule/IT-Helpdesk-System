@@ -1,0 +1,1257 @@
+﻿
+
+@using System
+@using System.Collections
+@using System.Collections.Generic
+@using System.Linq
+
+@{
+    Layout = null;
+
+    string heading = ViewBag.Heading as string ?? "Tickets";
+    string role = ViewBag.UserRole as string ?? "";
+    string email = ViewBag.UserEmail as string ?? "";
+    string currentUserId = Convert.ToString(ViewBag.CurrentUserId) ?? "";
+
+    bool isManager = role.Equals(
+        "manager",
+        StringComparison.OrdinalIgnoreCase);
+
+    bool isTechnician = role.Equals(
+        "technician",
+        StringComparison.OrdinalIgnoreCase);
+
+    bool isAssignmentPage = heading.Equals(
+        "Assign Tickets",
+        StringComparison.OrdinalIgnoreCase);
+
+    var technicians = ViewBag.Technicians
+        as List<(Guid Id, string Name)>
+        ?? new List<(Guid Id, string Name)>();
+
+    var tickets = new List<object>();
+
+    if (ViewBag.Tickets is IEnumerable ticketData)
+    {
+        foreach (var item in ticketData)
+        {
+            if (item != null)
+            {
+                tickets.Add(item);
+            }
+        }
+    }
+
+    string GetValue(object ticket, string property)
+    {
+        return ticket.GetType()
+            .GetProperty(property)?
+            .GetValue(ticket)?
+            .ToString() ?? "";
+    }
+
+    bool IsUnassigned(object ticket)
+    {
+        string assignedTo = GetValue(ticket, "AssignedTo");
+
+        return string.IsNullOrWhiteSpace(assignedTo)
+            || assignedTo == Guid.Empty.ToString();
+    }
+
+    bool IsClosed(object ticket)
+    {
+        return GetValue(ticket, "Status").Equals(
+            "Closed",
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    bool CanSelfAssign(object ticket)
+    {
+        return isTechnician
+            && IsUnassigned(ticket)
+            && GetValue(ticket, "Status").Equals(
+                "Open",
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    bool CanUpdateStatus(object ticket)
+    {
+        if (isManager)
+        {
+            return true;
+        }
+
+        return isTechnician
+            && !IsUnassigned(ticket)
+            && GetValue(ticket, "AssignedTo").Equals(
+                currentUserId,
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    var displayedTickets = isAssignmentPage
+        ? tickets.Where(ticket =>
+            !IsClosed(ticket)
+            && (isManager || CanSelfAssign(ticket)))
+            .ToList()
+        : tickets;
+
+    int unassignedCount = tickets.Count(ticket =>
+        IsUnassigned(ticket) && !IsClosed(ticket));
+
+    int openCount = displayedTickets.Count(ticket =>
+        GetValue(ticket, "Status").Equals(
+            "Open",
+            StringComparison.OrdinalIgnoreCase));
+
+    int inProgressCount = displayedTickets.Count(ticket =>
+        GetValue(ticket, "Status").Equals(
+            "In Progress",
+            StringComparison.OrdinalIgnoreCase));
+
+    string initials = string.IsNullOrWhiteSpace(email)
+        ? "IT"
+        : email.Substring(
+            0,
+            Math.Min(email.Length, 2)
+          ).ToUpperInvariant();
+
+    string StatusClass(string value)
+    {
+        return "status-" +
+            value.Trim().ToLowerInvariant().Replace(" ", "-");
+    }
+
+    string PriorityClass(string value)
+    {
+        return "priority-" +
+            value.Trim().ToLowerInvariant().Replace(" ", "-");
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>@heading | IT Helpdesk</title>
+
+    <style>
+        :root {
+            --navy: #172c49;
+            --navy-light: #345781;
+            --blue: #2563eb;
+            --background: #f4f7fc;
+            --ink: #24334a;
+            --muted: #758298;
+            --line: #e7ecf3;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            color: var(--ink);
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 246px;
+            flex-shrink: 0;
+            min-height: 100vh;
+            background: var(--navy);
+            color: white;
+            padding: 27px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            padding: 6px 12px 29px;
+            border-bottom: 1px solid #ffffff24;
+        }
+
+        .brand-icon {
+            display: grid;
+            place-items: center;
+            width: 39px;
+            height: 39px;
+            background: #3b82f6;
+            border-radius: 11px;
+            font-size: 23px;
+        }
+
+        .nav-caption {
+            padding: 26px 13px 10px;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: #a6b8d2;
+            font-weight: 700;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            color: #dce7f5;
+            text-decoration: none;
+            border-radius: 9px;
+            margin: 3px 0;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--navy-light);
+            color: white;
+        }
+
+        .nav-link.active {
+            font-weight: 600;
+        }
+
+        .nav-symbol {
+            width: 21px;
+            text-align: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 18px 10px 0;
+            border-top: 1px solid #ffffff24;
+            font-size: 12px;
+            color: #bdcce0;
+        }
+
+        .sidebar-bottom form {
+            margin-top: 14px;
+        }
+
+        .sidebar-logout {
+            display: block;
+            width: 100%;
+            padding: 11px;
+            background: transparent;
+            border: 1px solid #7187a4;
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .sidebar-logout:hover {
+            background: var(--navy-light);
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            background: white;
+            border-bottom: 1px solid var(--line);
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .topbar-title {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 39px;
+            height: 39px;
+            border-radius: 50%;
+            background: #e0ecff;
+            color: #2357a5;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .identity strong {
+            display: block;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .identity small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            text-transform: capitalize;
+        }
+
+        .content {
+            max-width: 1600px;
+            margin: auto;
+            padding: 30px 32px 44px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            color: var(--navy);
+            font-size: 27px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* SUMMARY CARDS */
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 21px 24px;
+            box-shadow: 0 3px 14px #182e4b08;
+        }
+
+        .summary-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 9px;
+        }
+
+        .summary-card strong {
+            font-size: 29px;
+            color: var(--navy);
+        }
+
+        /* PANELS */
+
+        .panel {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            box-shadow: 0 3px 14px #182e4b08;
+            overflow: hidden;
+        }
+
+        .panel-head {
+            padding: 23px 24px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .panel-head h2 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            color: var(--navy);
+        }
+
+        .panel-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* FILTERS */
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        .filters input,
+        .filters select {
+            border: 1px solid #d9e1ec;
+            border-radius: 8px;
+            padding: 11px 12px;
+            background: white;
+            color: var(--ink);
+            font-size: 13px;
+        }
+
+        .filters input {
+            min-width: 240px;
+            flex: 1;
+        }
+
+        .filters select {
+            min-width: 145px;
+        }
+
+        /* TABLE */
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 980px;
+        }
+
+        th {
+            padding: 15px 17px;
+            text-align: left;
+            background: #f8fafd;
+            color: #687991;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 17px;
+            border-top: 1px solid #edf0f5;
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        .ref {
+            color: #2459c5;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .ticket-title {
+            font-weight: 600;
+            min-width: 140px;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #edf1f5;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-open {
+            background: #fff1d6;
+            color: #9c6700;
+        }
+
+        .status-in-progress {
+            background: #e3efff;
+            color: #225bb8;
+        }
+
+        .status-resolved {
+            background: #dff7e9;
+            color: #157c46;
+        }
+
+        .status-closed {
+            background: #e9edf2;
+            color: #5b6574;
+        }
+
+        .priority-high {
+            color: #bc3131;
+            font-weight: 700;
+        }
+
+        .priority-medium {
+            color: #b9780b;
+            font-weight: 700;
+        }
+
+        .priority-low {
+            color: #168150;
+            font-weight: 700;
+        }
+
+        /* ACTIONS */
+
+        .action-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 190px;
+        }
+
+        .action-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .action-form select,
+        .action-form input {
+            width: 100%;
+            border: 1px solid #dce3ed;
+            border-radius: 7px;
+            padding: 9px 10px;
+            font-size: 12px;
+            background: white;
+        }
+
+        .action-button {
+            border: none;
+            border-radius: 7px;
+            background: var(--blue);
+            color: white;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            background: #1749c6;
+        }
+
+        .action-button.assign {
+            background: #16815c;
+        }
+
+        .action-button.assign:hover {
+            background: #116747;
+        }
+
+        .muted-action {
+            color: #8793a5;
+            font-size: 12px;
+        }
+
+        .empty {
+            padding: 35px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .note {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 9px;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+
+        .alert.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @@media (max-width: 1100px) {
+            .summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @@media (max-width: 800px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .sidebar nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .sidebar-bottom {
+                margin-top: 20px;
+            }
+
+            .topbar {
+                padding: 16px;
+            }
+
+            .content {
+                padding: 20px 14px;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <div class="brand">
+                <span class="brand-icon">☏</span>
+                IT Helpdesk
+            </div>
+
+            <div class="nav-caption">
+                MAIN MENU
+            </div>
+
+            <nav aria-label="Main navigation">
+
+                <a class="nav-link"
+                   href="/Dashboard">
+                    <span class="nav-symbol">▦</span>
+                    Dashboard
+                </a>
+
+                <a class="nav-link @(isAssignmentPage ? "" : "active")"
+                   href="/WebTicketPages/Index"
+                   aria-current="@(isAssignmentPage ? null : "page")">
+                    <span class="nav-symbol">☷</span>
+                    Tickets
+                </a>
+
+                <a class="nav-link @(isAssignmentPage ? "active" : "")"
+                   href="/WebTicketPages/Assign"
+                   aria-current="@(isAssignmentPage ? "page" : null)">
+                    <span class="nav-symbol">⇄</span>
+                    Assign Tickets
+                </a>
+
+                @if (isManager)
+                {
+                    <a class="nav-link"
+                       href="/WebReports">
+                        <span class="nav-symbol">▥</span>
+                        Reports
+                    </a>
+
+                    <a class="nav-link"
+                       href="/WebUsers">
+                        <span class="nav-symbol">♙</span>
+                        User Management
+                    </a>
+                }
+
+                <a class="nav-link"
+                   href="/WebProfile">
+                    <span class="nav-symbol">◉</span>
+                    Profile
+                </a>
+
+            </nav>
+
+            <div class="sidebar-bottom">
+                IT Support Portal
+
+                <form action="/Account/Logout"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="sidebar-logout">
+                        ↪ &nbsp; Log out
+                    </button>
+
+                </form>
+            </div>
+
+        </aside>
+
+        <!-- MAIN CONTENT -->
+
+        <main class="main">
+
+            <header class="topbar">
+
+                <div class="topbar-title">
+                    IT Helpdesk / @heading
+                </div>
+
+                <div class="identity">
+
+                    <span class="avatar">
+                        @initials
+                    </span>
+
+                    <div>
+                        <strong>@email</strong>
+                        <small>@role</small>
+                    </div>
+
+                </div>
+
+            </header>
+
+            <div class="content">
+
+                <h1>@heading</h1>
+
+                <p class="subtitle">
+
+                    @if (isAssignmentPage)
+                    {
+                        if (isManager)
+                        {
+                            <text>
+                                Assign or reassign support tickets
+                                to technicians.
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                View available open tickets and
+                                assign eligible requests to yourself.
+                            </text>
+                        }
+                    }
+                    else
+                    {
+                        <text>
+                            Search, filter, and manage support requests.
+                        </text>
+                    }
+
+                </p>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert success">
+                        @TempData["Success"]
+                    </div>
+                }
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert error">
+                        @TempData["Error"]
+                    </div>
+                }
+
+                <!-- SUMMARY CARDS -->
+
+                <section class="summary"
+                         aria-label="Ticket summary">
+
+                    <div class="summary-card">
+                        <span>
+                            @(isAssignmentPage
+                                ? "Available Tickets"
+                                : "Total Tickets")
+                        </span>
+
+                        <strong>@displayedTickets.Count</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>Open Tickets</span>
+                        <strong>@openCount</strong>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>
+                            @(isAssignmentPage && isManager
+                                ? "Unassigned Tickets"
+                                : "In Progress")
+                        </span>
+
+                        <strong>
+                            @(isAssignmentPage && isManager
+                                ? unassignedCount
+                                : inProgressCount)
+                        </strong>
+                    </div>
+
+                </section>
+
+                <!-- TICKET TABLE -->
+
+                <section class="panel">
+
+                    <div class="panel-head">
+
+                        <h2>
+                            @(isAssignmentPage
+                                ? (isManager
+                                    ? "Technician Assignments"
+                                    : "Available for Self-Assignment")
+                                : "Ticket List")
+                        </h2>
+
+                        <p>
+                            @(isAssignmentPage
+                                ? (isManager
+                                    ? "Select a technician for each ticket. Existing assignments can also be changed."
+                                    : "Choose Self-Assign to take responsibility for an available open ticket.")
+                                : "Use the search and filters to find tickets.")
+                        </p>
+
+                    </div>
+
+                    <div class="filters">
+
+                        <input id="ticketSearch"
+                               type="search"
+                               placeholder="Search reference or title..."
+                               aria-label="Search tickets" />
+
+                        <select id="statusFilter"
+                                aria-label="Filter by status">
+
+                            <option value="">All Statuses</option>
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="Closed">Closed</option>
+
+                        </select>
+
+                        <select id="priorityFilter"
+                                aria-label="Filter by priority">
+
+                            <option value="">All Priorities</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+
+                        </select>
+
+                        @if (isAssignmentPage && isManager)
+                        {
+                            <select id="assignmentFilter"
+                                    aria-label="Filter by assignment">
+
+                                <option value="">
+                                    All Assignments
+                                </option>
+
+                                <option value="unassigned">
+                                    Unassigned
+                                </option>
+
+                                <option value="assigned">
+                                    Assigned
+                                </option>
+
+                            </select>
+                        }
+
+                    </div>
+
+                    <div class="table-scroll">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Title</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="ticketRows">
+
+                                @foreach (var ticket in displayedTickets)
+                                {
+                                    string ticketId =
+                                        GetValue(ticket, "Id");
+
+                                    string reference =
+                                        GetValue(ticket, "ReferenceNumber");
+
+                                    string title =
+                                        GetValue(ticket, "Title");
+
+                                    string priority =
+                                        GetValue(ticket, "Priority");
+
+                                    string status =
+                                        GetValue(ticket, "Status");
+
+                                    string assignedTo =
+                                        GetValue(ticket, "AssignedTo");
+
+                                    bool isUnassigned =
+                                        IsUnassigned(ticket);
+
+                                    bool canSelfAssign =
+                                        CanSelfAssign(ticket);
+
+                                    bool canUpdate =
+                                        CanUpdateStatus(ticket);
+
+                                    string statusClass =
+                                        StatusClass(status);
+
+                                    string priorityClass =
+                                        PriorityClass(priority);
+
+                                    var assignedTechnician =
+                                        technicians.FirstOrDefault(t =>
+                                            t.Id.ToString().Equals(
+                                                assignedTo,
+                                                StringComparison.OrdinalIgnoreCase));
+
+                                    string assignedName = isUnassigned
+                                        ? "Unassigned"
+                                        : assignedTechnician.Id != Guid.Empty
+                                            ? assignedTechnician.Name
+                                            : assignedTo;
+
+                                    <tr class="ticket-row"
+                                        data-search="@(reference + " " + title)"
+                                        data-status="@status"
+                                        data-priority="@priority"
+                                        data-assignment="@(isUnassigned ? "unassigned" : "assigned")">
+
+                                        <td class="ref">
+                                            @reference
+                                        </td>
+
+                                        <td class="ticket-title">
+                                            @title
+                                        </td>
+
+                                        <td>
+                                            <span class="@priorityClass">
+                                                @priority
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span class="pill @statusClass">
+                                                @status
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            @assignedName
+                                        </td>
+
+                                        <td>
+
+                                            <div class="action-stack">
+
+                                                <!-- MANAGER ASSIGNMENT -->
+
+                                                @if (isAssignmentPage && isManager)
+                                                {
+                                                    <form class="action-form"
+                                                          action="/WebTickets/Assign"
+                                                          method="post">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <input type="hidden"
+                                                               name="ticketId"
+                                                               value="@ticketId" />
+
+                                                        <select name="technicianId"
+                                                                required
+                                                                aria-label="Select technician for @reference">
+
+                                                            <option value="">
+                                                                Select Technician
+                                                            </option>
+
+                                                            @foreach (var tech in technicians)
+                                                            {
+                                                                <option value="@tech.Id"
+                                                                        selected="@(tech.Id.ToString().Equals(
+                                                                            assignedTo,
+                                                                            StringComparison.OrdinalIgnoreCase))">
+                                                                    @tech.Name
+                                                                </option>
+                                                            }
+
+                                                        </select>
+
+                                                        <button class="action-button assign"
+                                                                type="submit">
+
+                                                            @(isUnassigned
+                                                                ? "Assign Technician"
+                                                                : "Reassign Technician")
+
+                                                        </button>
+
+                                                    </form>
+                                                }
+
+                                                <!-- TECHNICIAN SELF-ASSIGN -->
+
+                                                @if (canSelfAssign)
+                                                {
+                                                    <form class="action-form"
+                                                          action="/WebTickets/SelfAssign"
+                                                          method="post">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <input type="hidden"
+                                                               name="ticketId"
+                                                               value="@ticketId" />
+
+                                                        <button class="action-button assign"
+                                                                type="submit">
+                                                            Self-Assign
+                                                        </button>
+
+                                                    </form>
+                                                }
+
+                                                <!-- STATUS UPDATE -->
+
+                                                @if (!isAssignmentPage && canUpdate)
+                                                {
+                                                    <form class="action-form"
+                                                          action="/WebTickets/UpdateStatus"
+                                                          method="post">
+
+                                                        @Html.AntiForgeryToken()
+
+                                                        <input type="hidden"
+                                                               name="ticketId"
+                                                               value="@ticketId" />
+
+                                                        <select name="status"
+                                                                required
+                                                                aria-label="Update status of @reference">
+
+                                                            <option value="Open"
+                                                                    selected="@(status == "Open")">
+                                                                Open
+                                                            </option>
+
+                                                            <option value="In Progress"
+                                                                    selected="@(status == "In Progress")">
+                                                                In Progress
+                                                            </option>
+
+                                                            <option value="Resolved"
+                                                                    selected="@(status == "Resolved")">
+                                                                Resolved
+                                                            </option>
+
+                                                            <option value="Closed"
+                                                                    selected="@(status == "Closed")">
+                                                                Closed
+                                                            </option>
+
+                                                        </select>
+
+                                                        <input type="text"
+                                                               name="resolutionNotes"
+                                                               placeholder="Resolution notes (optional)" />
+
+                                                        <button class="action-button"
+                                                                type="submit">
+                                                            Update Status
+                                                        </button>
+
+                                                    </form>
+                                                }
+
+                                                @if (!(isAssignmentPage && isManager)
+                                                    && !canSelfAssign
+                                                    && (isAssignmentPage || !canUpdate))
+                                                {
+                                                    <span class="muted-action">
+                                                        No actions available
+                                                    </span>
+                                                }
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                        <div id="noResults"
+                             class="empty"
+                             style="display:none">
+                            No tickets match your search or filters.
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <p class="note">
+                    Resolution notes are optional.
+                    Ticket actions depend on your account role,
+                    ticket status, and assignment.
+                </p>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        (function () {
+
+            const search =
+                document.getElementById("ticketSearch");
+
+            const status =
+                document.getElementById("statusFilter");
+
+            const priority =
+                document.getElementById("priorityFilter");
+
+            const assignment =
+                document.getElementById("assignmentFilter");
+
+            const rows = Array.from(
+                document.querySelectorAll(".ticket-row")
+            );
+
+            const empty =
+                document.getElementById("noResults");
+
+            function filterRows() {
+
+                const query =
+                    search.value.trim().toLowerCase();
+
+                let visible = 0;
+
+                for (const row of rows) {
+
+                    const matchesSearch =
+                        row.dataset.search
+                            .toLowerCase()
+                            .includes(query);
+
+                    const matchesStatus =
+                        !status.value ||
+                        row.dataset.status === status.value;
+
+                    const matchesPriority =
+                        !priority.value ||
+                        row.dataset.priority === priority.value;
+
+                    const matchesAssignment =
+                        !assignment ||
+                        !assignment.value ||
+                        row.dataset.assignment === assignment.value;
+
+                    const show =
+                        matchesSearch &&
+                        matchesStatus &&
+                        matchesPriority &&
+                        matchesAssignment;
+
+                    row.style.display =
+                        show ? "" : "none";
+
+                    if (show) {
+                        visible++;
+                    }
+                }
+
+                empty.style.display =
+                    visible === 0 ? "block" : "none";
+            }
+
+            const controls = [
+                search,
+                status,
+                priority
+            ];
+
+            if (assignment) {
+                controls.push(assignment);
+            }
+
+            controls.forEach(control => {
+                control.addEventListener(
+                    "input",
+                    filterRows);
+
+                control.addEventListener(
+                    "change",
+                    filterRows);
+            });
+
+            filterRows();
+
+        })();
+    </script>
+
+</body>
+</html>

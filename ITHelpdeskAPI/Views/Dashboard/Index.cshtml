@@ -1,0 +1,1145 @@
+﻿@using System
+@using System.Collections
+@using System.Collections.Generic
+@using System.Linq
+@using System.Globalization
+
+@{
+    Layout = null;
+    ViewData["Title"] = "IT Helpdesk Dashboard";
+
+    string role = Convert.ToString(ViewBag.UserRole) ?? "";
+    string email = Convert.ToString(ViewBag.UserEmail) ?? "";
+
+    bool isManager = role.Equals(
+        "manager",
+        StringComparison.OrdinalIgnoreCase);
+
+    bool isTechnician = role.Equals(
+        "technician",
+        StringComparison.OrdinalIgnoreCase);
+
+    int totalTickets =
+        Convert.ToInt32(ViewBag.TotalTickets ?? 0);
+
+    int openTickets =
+        Convert.ToInt32(ViewBag.OpenTickets ?? 0);
+
+    int inProgressTickets =
+        Convert.ToInt32(ViewBag.InProgressTickets ?? 0);
+
+    int resolvedTickets =
+        Convert.ToInt32(ViewBag.ResolvedTickets ?? 0);
+
+    var ticketList = new List<object>();
+
+    if (ViewBag.Tickets is IEnumerable tickets)
+    {
+        foreach (var ticket in tickets)
+        {
+            if (ticket != null)
+                ticketList.Add(ticket);
+        }
+    }
+
+    string GetValue(object ticket, string property)
+    {
+        return Convert.ToString(
+            ticket.GetType()
+                .GetProperty(property)
+                ?.GetValue(ticket)) ?? "";
+    }
+
+    string StatusClass(string status)
+    {
+        return status.Trim().ToLowerInvariant()
+            .Replace(" ", "-");
+    }
+
+    string PriorityClass(string priority)
+    {
+        return priority.Trim().ToLowerInvariant();
+    }
+
+    string initials = "IT";
+
+    if (!string.IsNullOrWhiteSpace(email))
+    {
+        initials = email.Substring(
+            0,
+            Math.Min(2, email.Length)
+        ).ToUpperInvariant();
+    }
+
+    var recentTickets = ticketList.Take(5).ToList();
+
+    int closedTickets = Math.Max(
+        0,
+        totalTickets - openTickets
+        - inProgressTickets - resolvedTickets);
+
+    double Percentage(int count) =>
+        totalTickets == 0
+            ? 0
+            : count * 100.0 / totalTickets;
+
+    string CssNumber(double value) =>
+        value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    double openPercent = Percentage(openTickets);
+    double progressPercent = Percentage(inProgressTickets);
+    double resolvedPercent = Percentage(resolvedTickets);
+
+    double stop1 = openPercent;
+    double stop2 = stop1 + progressPercent;
+    double stop3 = stop2 + resolvedPercent;
+
+    string donutBackground = totalTickets == 0
+        ? "#e2e8f0"
+        : $"conic-gradient(" +
+          $"#2563eb 0% {CssNumber(stop1)}%, " +
+          $"#f59e0b {CssNumber(stop1)}% {CssNumber(stop2)}%, " +
+          $"#16a34a {CssNumber(stop2)}% {CssNumber(stop3)}%, " +
+          $"#94a3b8 {CssNumber(stop3)}% 100%)";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>IT Helpdesk | Dashboard</title>
+
+    <style>
+            :root {
+                --navy: #172c49;
+                --blue: #2563eb;
+                --background: #f4f7fc;
+                --ink: #24334a;
+                --muted: #758298;
+                --line: #e7ecf3;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: "Segoe UI", Arial, sans-serif;
+                background: var(--background);
+                color: var(--ink);
+            }
+
+            .layout {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            /* SIDEBAR */
+
+            .sidebar {
+                width: 246px;
+                flex-shrink: 0;
+                background: var(--navy);
+                color: white;
+                display: flex;
+                flex-direction: column;
+                padding: 27px 16px;
+                min-height: 100vh;
+            }
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 20px;
+                font-weight: 700;
+                padding: 6px 12px 29px;
+                border-bottom: 1px solid #ffffff24;
+            }
+
+            .brand-icon {
+                display: grid;
+                place-items: center;
+                width: 39px;
+                height: 39px;
+                border-radius: 11px;
+                background: #3b82f6;
+                font-size: 23px;
+            }
+
+            .nav-caption {
+                padding: 26px 13px 10px;
+                font-size: 11px;
+                letter-spacing: 1.5px;
+                color: #a6b8d2;
+                font-weight: 700;
+            }
+
+            .sidebar nav {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 13px 14px;
+                color: #dce7f5;
+                text-decoration: none;
+                border-radius: 9px;
+                margin: 3px 0;
+                font-size: 14px;
+                transition: background 0.2s;
+            }
+
+                .nav-link:hover,
+                .nav-link.active {
+                    background: #345781;
+                    color: white;
+                }
+
+                .nav-link.active {
+                    font-weight: 600;
+                }
+
+            .nav-symbol {
+                width: 21px;
+                text-align: center;
+                font-size: 18px;
+                flex-shrink: 0;
+            }
+
+            .sidebar-bottom {
+                margin-top: auto;
+                padding: 18px 10px 0;
+                border-top: 1px solid #ffffff24;
+                font-size: 12px;
+                color: #bdcce0;
+            }
+
+                .sidebar-bottom form {
+                    margin-top: 14px;
+                }
+
+            .sidebar-logout {
+                display: block;
+                width: 100%;
+                background: transparent;
+                border: 1px solid #7187a4;
+                border-radius: 8px;
+                padding: 11px;
+                color: white;
+                font-family: inherit;
+                font-size: 13px;
+                text-align: left;
+                cursor: pointer;
+            }
+
+                .sidebar-logout:hover {
+                    background: #345781;
+                }
+
+            /* MAIN CONTENT */
+
+            .main {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .topbar {
+                background: white;
+                border-bottom: 1px solid var(--line);
+                padding: 18px 32px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 15px;
+            }
+
+            .topbar-title {
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .identity {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .avatar {
+                width: 39px;
+                height: 39px;
+                border-radius: 50%;
+                background: #e0ecff;
+                color: #2357a5;
+                display: grid;
+                place-items: center;
+                font-weight: 700;
+            }
+
+            .identity strong {
+                display: block;
+                font-size: 13px;
+                max-width: 240px;
+                overflow-wrap: anywhere;
+            }
+
+            .identity small {
+                display: block;
+                color: var(--muted);
+                margin-top: 4px;
+                text-transform: capitalize;
+            }
+
+            .content {
+                max-width: 1600px;
+                margin: auto;
+                padding: 30px 32px 44px;
+            }
+
+            h1 {
+                margin: 0 0 8px;
+                font-size: 27px;
+                color: var(--navy);
+            }
+
+            .subtitle {
+                margin: 0;
+                color: var(--muted);
+                font-size: 14px;
+            }
+
+            /* STAT CARDS */
+
+            .cards {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 17px;
+                margin: 26px 0;
+            }
+
+            .stat-card {
+                background: white;
+                border: 1px solid var(--line);
+                border-radius: 13px;
+                padding: 21px;
+                box-shadow: 0 3px 14px #182e4b08;
+                display: flex;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .stat-label {
+                color: var(--muted);
+                font-size: 13px;
+                margin: 0 0 12px;
+            }
+
+            .stat-number {
+                font-size: 31px;
+                font-weight: 700;
+                margin: 0;
+                color: var(--navy);
+            }
+
+            .stat-icon {
+                width: 45px;
+                height: 45px;
+                border-radius: 12px;
+                display: grid;
+                place-items: center;
+                font-size: 22px;
+                flex-shrink: 0;
+            }
+
+            .icon-blue {
+                background: #e6efff;
+                color: #2563eb;
+            }
+
+            .icon-amber {
+                background: #fff3db;
+                color: #bd7b0c;
+            }
+
+            .icon-green {
+                background: #e2f7ec;
+                color: #14804b;
+            }
+
+            .icon-purple {
+                background: #f0e8ff;
+                color: #7950c6;
+            }
+
+            /* PANELS */
+
+            .panel {
+                background: white;
+                border: 1px solid var(--line);
+                border-radius: 13px;
+                box-shadow: 0 3px 14px #182e4b08;
+                overflow: hidden;
+                margin-bottom: 24px;
+            }
+
+            .panel-head {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 15px;
+                padding: 23px 24px;
+                border-bottom: 1px solid var(--line);
+            }
+
+                .panel-head h2 {
+                    margin: 0 0 6px;
+                    font-size: 18px;
+                    color: var(--navy);
+                }
+
+                .panel-head p {
+                    margin: 0;
+                    color: var(--muted);
+                    font-size: 13px;
+                }
+
+            .view-link {
+                color: var(--blue);
+                font-size: 13px;
+                font-weight: 600;
+                text-decoration: none;
+                white-space: nowrap;
+            }
+
+                .view-link:hover {
+                    text-decoration: underline;
+                }
+
+            /* TABLE */
+
+            .table-scroll {
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th {
+                padding: 15px 18px;
+                text-align: left;
+                background: #f8fafd;
+                color: #687991;
+                font-size: 12px;
+                font-weight: 700;
+            }
+
+            td {
+                padding: 16px 18px;
+                border-top: 1px solid #edf0f5;
+                font-size: 13px;
+            }
+
+            .reference {
+                color: #2459c5;
+                font-weight: 700;
+            }
+
+            .pill {
+                display: inline-block;
+                border-radius: 999px;
+                padding: 6px 10px;
+                font-size: 11px;
+                font-weight: 700;
+                background: #edf1f5;
+            }
+
+            .status-open {
+                background: #dbeafe;
+                color: #1d4ed8;
+            }
+
+            .status-in-progress {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .status-resolved {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .status-closed {
+                background: #e2e8f0;
+                color: #475569;
+            }
+
+            .priority-high {
+                color: #dc2626;
+                font-weight: 700;
+            }
+
+            .priority-medium {
+                color: #b9770e;
+                font-weight: 700;
+            }
+
+            .priority-low {
+                color: #15803d;
+                font-weight: 700;
+            }
+
+            .empty {
+                text-align: center;
+                color: var(--muted);
+                padding: 35px;
+            }
+
+            /* MANAGER CHARTS */
+
+            .manager-grid {
+                display: grid;
+                grid-template-columns: 1.3fr 1fr;
+                gap: 20px;
+                margin-bottom: 24px;
+            }
+
+                .manager-grid .panel {
+                    margin-bottom: 0;
+                }
+
+            .chart-body {
+                padding: 24px;
+            }
+
+            .chart-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                gap: 25px;
+            }
+
+            .donut {
+                width: 185px;
+                height: 185px;
+                border-radius: 50%;
+                position: relative;
+                display: grid;
+                place-items: center;
+                flex-shrink: 0;
+            }
+
+                .donut::after {
+                    content: "";
+                    position: absolute;
+                    inset: 35px;
+                    background: white;
+                    border-radius: 50%;
+                }
+
+            .donut-center {
+                position: relative;
+                z-index: 1;
+                text-align: center;
+            }
+
+                .donut-center strong {
+                    display: block;
+                    font-size: 30px;
+                    color: var(--navy);
+                }
+
+                .donut-center span {
+                    font-size: 12px;
+                    color: var(--muted);
+                }
+
+            .legend {
+                flex: 1;
+                min-width: 170px;
+            }
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 11px 0;
+                border-bottom: 1px solid #f1f4f8;
+                font-size: 13px;
+            }
+
+            .legend-name {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+            }
+
+            .dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+            }
+
+            .progress-item {
+                margin-bottom: 22px;
+            }
+
+            .progress-top {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 9px;
+                font-size: 13px;
+            }
+
+            .progress-track {
+                height: 11px;
+                border-radius: 20px;
+                background: #edf2f8;
+                overflow: hidden;
+            }
+
+            .progress-fill {
+                height: 100%;
+                border-radius: 20px;
+            }
+
+            .footnote {
+                margin-top: 20px;
+                color: var(--muted);
+                font-size: 12px;
+            }
+
+            @@media (max-width: 1100px) {
+                .cards {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+
+                .manager-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @@media (max-width: 720px) {
+                .layout {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    min-height: auto;
+                    padding: 16px;
+                }
+
+                .brand {
+                    padding-bottom: 15px;
+                }
+
+                .sidebar nav {
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                }
+
+                .sidebar-bottom {
+                    margin-top: 15px;
+                }
+
+                .topbar {
+                    padding: 16px;
+                }
+
+                .content {
+                    padding: 20px 14px;
+                }
+
+                .cards {
+                    gap: 10px;
+                }
+
+                .stat-card {
+                    padding: 14px;
+                }
+
+                .stat-number {
+                    font-size: 25px;
+                }
+
+                .identity strong {
+                    max-width: 130px;
+                }
+            }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <div class="brand">
+                <span class="brand-icon">☏</span>
+                IT Helpdesk
+            </div>
+
+            <div class="nav-caption">
+                MAIN MENU
+            </div>
+
+            <nav aria-label="Main navigation">
+
+                <a class="nav-link active"
+                   href="/Dashboard"
+                   aria-current="page">
+                    <span class="nav-symbol">▦</span>
+                    Dashboard
+                </a>
+
+                <a class="nav-link"
+                   href="/WebTicketPages/Index">
+                    <span class="nav-symbol">☷</span>
+                    Tickets
+                </a>
+
+                <a class="nav-link"
+                   href="/WebTicketPages/Assign">
+                    <span class="nav-symbol">⇄</span>
+                    Assign Tickets
+                </a>
+
+                
+                @if (isManager)
+                {
+                    <a class="nav-link" href="/WebReports">
+                        <span class="nav-symbol">▥</span>
+                        Reports
+                    </a>
+
+                    <a class="nav-link" href="/WebUsers">
+                        <span class="nav-symbol">♙</span>
+                        User Management
+                    </a>
+                }
+
+
+                <a class="nav-link"
+                   href="/WebProfile">
+                    <span class="nav-symbol">◉</span>
+                    Profile
+                </a>
+
+            </nav>
+
+            <div class="sidebar-bottom">
+                IT Support Portal
+
+                <form action="/Account/Logout" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="sidebar-logout">
+                        ↪ &nbsp; Log out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+        <!-- MAIN -->
+
+        <main class="main">
+
+            <header class="topbar">
+
+                <div class="topbar-title">
+                    IT Helpdesk / Dashboard
+                </div>
+
+                <div class="identity">
+
+                    <span class="avatar">@initials</span>
+
+                    <div>
+                        <strong>@email</strong>
+                        <small>@role</small>
+                    </div>
+
+                </div>
+
+            </header>
+
+            <div class="content">
+
+                <h1>
+                    @(isManager
+                        ? "Manager Dashboard"
+                        : "Technician Dashboard")
+                </h1>
+
+                <p class="subtitle">
+                    @(isManager
+                        ? "Overview of IT support requests and ticket performance."
+                        : "Overview of your assigned support requests and ticket progress.")
+                </p>
+
+                <!-- STATISTICS -->
+
+                <section class="cards"
+                         aria-label="Ticket statistics">
+
+                    @if (isTechnician)
+                    {
+                        <div class="stat-card">
+                            <div>
+                                <p class="stat-label">Open Tickets</p>
+                                <p class="stat-number">@openTickets</p>
+                            </div>
+
+                            <span class="stat-icon icon-blue">◷</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <div>
+                                <p class="stat-label">In Progress</p>
+                                <p class="stat-number">@inProgressTickets</p>
+                            </div>
+
+                            <span class="stat-icon icon-amber">⚙</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <div>
+                                <p class="stat-label">Resolved Tickets</p>
+                                <p class="stat-number">@resolvedTickets</p>
+                            </div>
+
+                            <span class="stat-icon icon-green">✓</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <div>
+                                <p class="stat-label">Total Tickets</p>
+                                <p class="stat-number">@totalTickets</p>
+                            </div>
+
+                            <span class="stat-icon icon-purple">☷</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="stat-card">
+                            <div>
+                                <p class="stat-label">Total Tickets</p>
+                                <p class="stat-number">@totalTickets</p>
+                            </div>
+
+                            <span class="stat-icon icon-purple">☷</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <div>
+                                <p class="stat-label">Open Tickets</p>
+                                <p class="stat-number">@openTickets</p>
+                            </div>
+
+                            <span class="stat-icon icon-blue">◷</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <div>
+                                <p class="stat-label">In Progress</p>
+                                <p class="stat-number">@inProgressTickets</p>
+                            </div>
+
+                            <span class="stat-icon icon-amber">⚙</span>
+                        </div>
+
+                        <div class="stat-card">
+                            <div>
+                                <p class="stat-label">Resolved Tickets</p>
+                                <p class="stat-number">@resolvedTickets</p>
+                            </div>
+
+                            <span class="stat-icon icon-green">✓</span>
+                        </div>
+                    }
+
+                </section>
+
+                <!-- MANAGER CHARTS -->
+                @if (isManager)
+                {
+                    <div class="manager-grid">
+
+                        <section class="panel">
+
+                            <div class="panel-head">
+                                <div>
+                                    <h2>Ticket Status Overview</h2>
+                                    <p>Distribution of support tickets</p>
+                                </div>
+                            </div>
+
+                            <div class="chart-body">
+
+                                <div class="chart-row">
+
+                                    <div class="donut"
+                                         style="background:@donutBackground">
+
+                                        <div class="donut-center">
+                                            <strong>@totalTickets</strong>
+                                            <span>Total Tickets</span>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="legend">
+
+                                        <div class="legend-item">
+                                            <span class="legend-name">
+                                                <span class="dot"
+                                                      style="background:#2563eb">
+                                                </span>
+                                                Open
+                                            </span>
+                                            <strong>@openTickets</strong>
+                                        </div>
+
+                                        <div class="legend-item">
+                                            <span class="legend-name">
+                                                <span class="dot"
+                                                      style="background:#f59e0b">
+                                                </span>
+                                                In Progress
+                                            </span>
+                                            <strong>@inProgressTickets</strong>
+                                        </div>
+
+                                        <div class="legend-item">
+                                            <span class="legend-name">
+                                                <span class="dot"
+                                                      style="background:#16a34a">
+                                                </span>
+                                                Resolved
+                                            </span>
+                                            <strong>@resolvedTickets</strong>
+                                        </div>
+
+                                        <div class="legend-item">
+                                            <span class="legend-name">
+                                                <span class="dot"
+                                                      style="background:#94a3b8">
+                                                </span>
+                                                Closed
+                                            </span>
+                                            <strong>@closedTickets</strong>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                        <section class="panel">
+
+                            <div class="panel-head">
+                                <div>
+                                    <h2>Ticket Progress</h2>
+                                    <p>Percentage by ticket status</p>
+                                </div>
+                            </div>
+
+                            <div class="chart-body">
+
+                                @{
+                                    var statusData = new[]
+                                    {
+                                        new
+                                        {
+                                            Name = "Open",
+                                            Count = openTickets,
+                                            Color = "#2563eb"
+                                        },
+                                        new
+                                        {
+                                            Name = "In Progress",
+                                            Count = inProgressTickets,
+                                            Color = "#f59e0b"
+                                        },
+                                        new
+                                        {
+                                            Name = "Resolved",
+                                            Count = resolvedTickets,
+                                            Color = "#16a34a"
+                                        },
+                                        new
+                                        {
+                                            Name = "Closed",
+                                            Count = closedTickets,
+                                            Color = "#94a3b8"
+                                        }
+                                    };
+                                }
+
+                                @foreach (var item in statusData)
+                                {
+                                    double percent =
+                                        Percentage(item.Count);
+
+                                    <div class="progress-item">
+
+                                        <div class="progress-top">
+                                            <span>@item.Name</span>
+                                            <strong>
+                                                @percent.ToString("0.0")%
+                                            </strong>
+                                        </div>
+
+                                        <div class="progress-track">
+
+                                            <div class="progress-fill"
+                                                 style="width:@(CssNumber(percent))%;background:@item.Color">
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </section>
+
+                    </div>
+                }
+
+                <!-- RECENT TICKETS -->
+
+                <section class="panel">
+
+                    <div class="panel-head">
+
+                        <div>
+                            <h2>Recent Tickets</h2>
+                            <p>
+                                @(isTechnician
+                                    ? "Your latest available support tickets"
+                                    : "Latest support requests")
+                            </p>
+                        </div>
+
+                        <a href="/WebTicketPages/Index"
+                           class="view-link">
+                            View all →
+                        </a>
+
+                    </div>
+
+                    <div class="table-scroll">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Title</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var ticket in recentTickets)
+                                {
+                                    string reference =
+                                        GetValue(ticket, "ReferenceNumber");
+
+                                    string title =
+                                        GetValue(ticket, "Title");
+
+                                    string priority =
+                                        GetValue(ticket, "Priority");
+
+                                    string status =
+                                        GetValue(ticket, "Status");
+
+                                    string assignedTo =
+                                        GetValue(ticket, "AssignedTo");
+
+                                    <tr>
+
+                                        <td class="reference">
+                                            @reference
+                                        </td>
+
+                                        <td>@title</td>
+
+                                        <td>
+                                            <span class="priority-@PriorityClass(priority)">
+                                                @priority
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span class="pill status-@StatusClass(status)">
+                                                @status
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            @(string.IsNullOrWhiteSpace(assignedTo)
+                                                ? "Unassigned"
+                                                : assignedTo)
+                                        </td>
+
+                                    </tr>
+                                }
+
+                                @if (recentTickets.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="5" class="empty">
+                                            No tickets available.
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <p class="footnote">
+                    Ticket information is based on the records
+                    available to your account.
+                </p>
+
+            </div>
+
+        </main>
+
+    </div>
+</body>
+</html>
+
+

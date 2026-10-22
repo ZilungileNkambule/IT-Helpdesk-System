@@ -1,0 +1,30 @@
+# Visual Studio temporary files
+.vs/
+**/.vs/
+*.user
+*.suo
+
+# ASP.NET Core build files
+bin/
+obj/
+**/bin/
+**/obj/
+Debug/
+Release/
+
+# Local configuration and secrets
+appsettings.Development.json
+**/appsettings.Development.json
+appsettings.Local.json
+.env
+.env.*
+!.env.example
+secrets.json
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak

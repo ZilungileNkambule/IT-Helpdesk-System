@@ -1,0 +1,932 @@
+﻿@model Dictionary<string, int>
+
+@{
+    Layout = null;
+    ViewData["Title"] = "IT Helpdesk Reports";
+
+    var counts = new Dictionary<string, int>(
+        Model ?? new Dictionary<string, int>(),
+        StringComparer.OrdinalIgnoreCase);
+
+    int total = counts.Values.Sum();
+    int open = counts.GetValueOrDefault("Open");
+    int inProgress = counts.GetValueOrDefault("In Progress");
+    int resolved = counts.GetValueOrDefault("Resolved");
+    int closed = counts.GetValueOrDefault("Closed");
+
+    var statuses = new[]
+    {
+        new
+        {
+            Name = "Open",
+            Count = open,
+            Color = "#2563eb",
+            Css = "open"
+        },
+        new
+        {
+            Name = "In Progress",
+            Count = inProgress,
+            Color = "#f59e0b",
+            Css = "progress"
+        },
+        new
+        {
+            Name = "Resolved",
+            Count = resolved,
+            Color = "#16a34a",
+            Css = "resolved"
+        },
+        new
+        {
+            Name = "Closed",
+            Count = closed,
+            Color = "#64748b",
+            Css = "closed"
+        }
+    };
+
+    string FormatPercentage(int count)
+    {
+        return total > 0
+            ? (count * 100.0 / total).ToString("0.0")
+            : "0.0";
+    }
+
+    string WidthPercentage(int count)
+    {
+        double percentage = total > 0
+            ? count * 100.0 / total
+            : 0;
+
+        return percentage.ToString(
+            "0.##",
+            System.Globalization.CultureInfo.InvariantCulture);
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>IT Helpdesk | Reports</title>
+
+    <style>
+            :root {
+                --navy: #172c49;
+                --navy-light: #345781;
+                --blue: #2563eb;
+                --background: #f4f7fc;
+                --ink: #24334a;
+                --muted: #758298;
+                --line: #e7ecf3;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: "Segoe UI", Arial, sans-serif;
+                background: var(--background);
+                color: var(--ink);
+            }
+
+            .layout {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            /* SIDEBAR */
+
+            .sidebar {
+                width: 246px;
+                flex-shrink: 0;
+                background: var(--navy);
+                color: white;
+                display: flex;
+                flex-direction: column;
+                padding: 27px 16px;
+                min-height: 100vh;
+            }
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 20px;
+                font-weight: 700;
+                padding: 6px 12px 29px;
+                border-bottom: 1px solid #ffffff24;
+            }
+
+            .brand-icon {
+                display: grid;
+                place-items: center;
+                width: 39px;
+                height: 39px;
+                border-radius: 11px;
+                background: #3b82f6;
+                font-size: 23px;
+                flex-shrink: 0;
+            }
+
+            .nav-caption {
+                padding: 26px 13px 10px;
+                font-size: 11px;
+                letter-spacing: 1.5px;
+                color: #a6b8d2;
+                font-weight: 700;
+            }
+
+            .sidebar nav {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 13px 14px;
+                color: #dce7f5;
+                text-decoration: none;
+                border-radius: 9px;
+                margin: 3px 0;
+                font-size: 14px;
+                transition: background 0.2s;
+            }
+
+                .nav-link:hover,
+                .nav-link.active {
+                    background: #345781;
+                    color: white;
+                }
+
+                .nav-link.active {
+                    font-weight: 600;
+                }
+
+            .nav-symbol {
+                width: 21px;
+                text-align: center;
+                font-size: 18px;
+                flex-shrink: 0;
+            }
+
+            .sidebar-bottom {
+                margin-top: auto;
+                padding: 18px 10px 0;
+                border-top: 1px solid #ffffff24;
+                font-size: 12px;
+                color: #bdcce0;
+            }
+
+                .sidebar-bottom form {
+                    margin-top: 14px;
+                }
+
+            .sidebar-logout {
+                display: block;
+                width: 100%;
+                background: transparent;
+                border: 1px solid #7187a4;
+                border-radius: 8px;
+                padding: 11px;
+                color: white;
+                font-family: inherit;
+                font-size: 13px;
+                cursor: pointer;
+                text-align: left;
+                transition: background 0.2s;
+            }
+
+                .sidebar-logout:hover {
+                    background: #345781;
+                }
+
+            /* MAIN CONTENT */
+
+            .main {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .topbar {
+                background: white;
+                border-bottom: 1px solid var(--line);
+                padding: 20px 32px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 15px;
+            }
+
+            .topbar-title {
+                color: var(--muted);
+                font-size: 14px;
+            }
+
+            .identity {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .avatar {
+                width: 39px;
+                height: 39px;
+                border-radius: 50%;
+                background: #e0ecff;
+                color: #2357a5;
+                display: grid;
+                place-items: center;
+                font-weight: 700;
+            }
+
+            .identity strong {
+                display: block;
+                font-size: 13px;
+            }
+
+            .identity small {
+                display: block;
+                color: var(--muted);
+                margin-top: 4px;
+                text-transform: capitalize;
+            }
+
+            .content {
+                max-width: 1600px;
+                margin: auto;
+                padding: 30px 32px 44px;
+            }
+
+            .page-heading {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 15px;
+                flex-wrap: wrap;
+                margin-bottom: 28px;
+            }
+
+            h1 {
+                margin: 0 0 8px;
+                font-size: 27px;
+                color: var(--navy);
+            }
+
+            .subtitle {
+                margin: 0;
+                color: var(--muted);
+                font-size: 14px;
+            }
+
+            .back-button {
+                display: inline-flex;
+                align-items: center;
+                gap: 9px;
+                padding: 12px 18px;
+                background: var(--navy);
+                color: white;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 600;
+                border-radius: 9px;
+                transition: background 0.2s;
+            }
+
+                .back-button:hover {
+                    background: #345781;
+                    color: white;
+                }
+
+            .section-title {
+                font-size: 18px;
+                color: var(--navy);
+                margin: 0 0 18px;
+            }
+
+            /* STAT CARDS */
+
+            .cards {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 18px;
+                margin-bottom: 30px;
+            }
+
+            .stat-card {
+                background: white;
+                border-radius: 13px;
+                padding: 22px;
+                border: 1px solid var(--line);
+                box-shadow: 0 3px 14px #182e4b08;
+            }
+
+            .stat-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .stat-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--muted);
+            }
+
+            .stat-icon {
+                width: 42px;
+                height: 42px;
+                border-radius: 11px;
+                display: grid;
+                place-items: center;
+                font-size: 21px;
+                flex-shrink: 0;
+            }
+
+            .stat-value {
+                font-size: 32px;
+                font-weight: 700;
+                color: var(--navy);
+            }
+
+            .stat-note {
+                margin-top: 7px;
+                font-size: 12px;
+                color: #94a3b8;
+            }
+
+            .blue {
+                background: #e8f1ff;
+                color: #2563eb;
+            }
+
+            .orange {
+                background: #fff3df;
+                color: #d97706;
+            }
+
+            .green {
+                background: #dcfce7;
+                color: #15803d;
+            }
+
+            .purple {
+                background: #f0eaff;
+                color: #7c3aed;
+            }
+
+            /* REPORT PANELS */
+
+            .report-grid {
+                display: grid;
+                grid-template-columns: 1.3fr 1fr;
+                gap: 22px;
+                margin-bottom: 25px;
+            }
+
+            .panel {
+                background: white;
+                padding: 26px;
+                border-radius: 13px;
+                border: 1px solid var(--line);
+                box-shadow: 0 3px 14px #182e4b08;
+            }
+
+                .panel h2 {
+                    font-size: 18px;
+                    color: var(--navy);
+                    margin: 0 0 8px;
+                }
+
+            .panel-description {
+                font-size: 13px;
+                color: var(--muted);
+                margin: 0 0 25px;
+            }
+
+            /* PROGRESS BARS */
+
+            .progress-item {
+                margin-bottom: 23px;
+            }
+
+            .progress-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 9px;
+                font-size: 14px;
+            }
+
+                .progress-header strong {
+                    color: #334155;
+                }
+
+                .progress-header span {
+                    color: #64748b;
+                }
+
+            .progress-track {
+                height: 11px;
+                border-radius: 20px;
+                background: #eef2f7;
+                overflow: hidden;
+            }
+
+            .progress-fill {
+                height: 100%;
+                border-radius: 20px;
+            }
+
+            /* TICKET SUMMARY */
+
+            .summary-total {
+                text-align: center;
+                padding: 15px 0 25px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .summary-number {
+                font-size: 54px;
+                font-weight: 700;
+                color: var(--navy);
+            }
+
+            .summary-label {
+                font-size: 14px;
+                color: var(--muted);
+            }
+
+            .summary-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 13px 0;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+            }
+
+                .summary-row:last-child {
+                    border-bottom: none;
+                }
+
+                .summary-row strong {
+                    color: var(--navy);
+                }
+
+            .status-dot {
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                margin-right: 8px;
+            }
+
+            /* TABLE */
+
+            .table-wrapper {
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                padding: 16px;
+                text-align: left;
+                border-bottom: 1px solid #edf1f5;
+                font-size: 14px;
+            }
+
+            th {
+                background: #f8fafc;
+                color: #64748b;
+                font-weight: 600;
+            }
+
+            td {
+                color: #334155;
+            }
+
+            .status-badge {
+                display: inline-block;
+                padding: 7px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+                .status-badge.open {
+                    background: #dbeafe;
+                    color: #1d4ed8;
+                }
+
+                .status-badge.progress {
+                    background: #fef3c7;
+                    color: #92400e;
+                }
+
+                .status-badge.resolved {
+                    background: #dcfce7;
+                    color: #166534;
+                }
+
+                .status-badge.closed {
+                    background: #e2e8f0;
+                    color: #475569;
+                }
+
+            .footer {
+                margin-top: 25px;
+                text-align: center;
+                color: #94a3b8;
+                font-size: 12px;
+            }
+
+            /* RESPONSIVE */
+
+            @@media (max-width: 1100px) {
+                .cards {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+
+                .report-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @@media (max-width: 700px) {
+                .layout {
+                    flex-direction: column;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    min-height: auto;
+                    padding: 18px;
+                }
+
+                .brand {
+                    padding-bottom: 15px;
+                }
+
+                .sidebar nav {
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                }
+
+                .sidebar-bottom {
+                    margin-top: 15px;
+                }
+
+                .topbar {
+                    padding: 16px;
+                }
+
+                .content {
+                    padding: 20px 14px;
+                }
+
+                .cards {
+                    grid-template-columns: 1fr;
+                }
+
+                h1 {
+                    font-size: 24px;
+                }
+            }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <div class="brand">
+                <span class="brand-icon">☏</span>
+                IT Helpdesk
+            </div>
+
+            <div class="nav-caption">
+                MAIN MENU
+            </div>
+
+            <nav aria-label="Main navigation">
+
+                <a class="nav-link" href="/Dashboard">
+                    <span class="nav-symbol">▦</span>
+                    Dashboard
+                </a>
+
+                <a class="nav-link" href="/WebTicketPages/Index">
+                    <span class="nav-symbol">☷</span>
+                    Tickets
+                </a>
+
+                <a class="nav-link" href="/WebTicketPages/Assign">
+                    <span class="nav-symbol">⇄</span>
+                    Assign Tickets
+                </a>
+
+                <a class="nav-link active"
+                   href="/WebReports"
+                   aria-current="page">
+                    <span class="nav-symbol">▥</span>
+                    Reports
+                </a>
+
+                <a class="nav-link" href="/WebUsers">
+                    <span class="nav-symbol">♙</span>
+                    User Management
+                </a>
+
+                <a class="nav-link" href="/WebProfile">
+                    <span class="nav-symbol">◉</span>
+                    Profile
+                </a>
+
+            </nav>
+
+            <div class="sidebar-bottom">
+                IT Support Portal
+
+                <form action="/Account/Logout" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit" class="sidebar-logout">
+                        ↪ &nbsp; Log out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+        <!-- MAIN CONTENT -->
+
+        <main class="main">
+
+            <header class="topbar">
+
+                <div class="topbar-title">
+                    IT Helpdesk / Reports
+                </div>
+
+                <div class="identity">
+                    <span class="avatar">IT</span>
+
+                    <div>
+                        <strong>Management Portal</strong>
+                        <small>Manager</small>
+                    </div>
+                </div>
+
+            </header>
+
+            <div class="content">
+
+                <!-- PAGE HEADING -->
+
+                <div class="page-heading">
+
+                    <div>
+                        <h1>Reports & Analytics</h1>
+
+                        <p class="subtitle">
+                            Overview of IT support ticket performance.
+                        </p>
+                    </div>
+
+                    <a href="/Dashboard" class="back-button">
+                        <span>←</span>
+                        Back to Dashboard
+                    </a>
+
+                </div>
+
+                <!-- STATISTICS -->
+
+                <h2 class="section-title">
+                    Ticket Overview
+                </h2>
+
+                <section class="cards" aria-label="Ticket statistics">
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Total Tickets</span>
+                            <div class="stat-icon purple">▤</div>
+                        </div>
+
+                        <div class="stat-value">@total</div>
+
+                        <div class="stat-note">
+                            All recorded support tickets
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Open Tickets</span>
+                            <div class="stat-icon blue">◷</div>
+                        </div>
+
+                        <div class="stat-value">@open</div>
+
+                        <div class="stat-note">
+                            Awaiting resolution
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">In Progress</span>
+                            <div class="stat-icon orange">⚙</div>
+                        </div>
+
+                        <div class="stat-value">@inProgress</div>
+
+                        <div class="stat-note">
+                            Currently being handled
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Resolved Tickets</span>
+                            <div class="stat-icon green">✓</div>
+                        </div>
+
+                        <div class="stat-value">@resolved</div>
+
+                        <div class="stat-note">
+                            Successfully resolved
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- REPORT CHARTS -->
+
+                <div class="report-grid">
+
+                    <section class="panel">
+
+                        <h2>Tickets by Status</h2>
+
+                        <p class="panel-description">
+                            Distribution of tickets across all statuses
+                        </p>
+
+                        @foreach (var item in statuses)
+                        {
+                            <div class="progress-item">
+
+                                <div class="progress-header">
+
+                                    <strong>@item.Name</strong>
+
+                                    <span>
+                                        @item.Count tickets
+                                        (@FormatPercentage(item.Count)%)
+                                    </span>
+
+                                </div>
+
+                                <div class="progress-track">
+
+                                    <div class="progress-fill"
+                                         style="width:@(WidthPercentage(item.Count))%;background-color:@item.Color">
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+
+                    </section>
+
+                    <section class="panel">
+
+                        <h2>Ticket Summary</h2>
+
+                        <p class="panel-description">
+                            Current system activity
+                        </p>
+
+                        <div class="summary-total">
+                            <div class="summary-number">@total</div>
+                            <div class="summary-label">
+                                Total Support Tickets
+                            </div>
+                        </div>
+
+                        @foreach (var item in statuses)
+                        {
+                            <div class="summary-row">
+
+                                <span>
+                                    <span class="status-dot"
+                                          style="background-color:@item.Color">
+                                    </span>
+                                    @item.Name
+                                </span>
+
+                                <strong>@item.Count</strong>
+
+                            </div>
+                        }
+
+                    </section>
+
+                </div>
+
+                <!-- DETAILED REPORT -->
+
+                <section class="panel">
+
+                    <h2>Detailed Status Report</h2>
+
+                    <p class="panel-description">
+                        Ticket counts and percentages by status
+                    </p>
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Ticket Status</th>
+                                    <th>Number of Tickets</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var item in statuses)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <span class="status-badge @item.Css">
+                                                @item.Name
+                                            </span>
+                                        </td>
+
+                                        <td>@item.Count</td>
+
+                                        <td>
+                                            @FormatPercentage(item.Count)%
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <th>Total</th>
+                                    <th>@total</th>
+                                    <th>@(total > 0 ? "100%" : "0%")</th>
+                                </tr>
+                            </tfoot>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <div class="footer">
+                    IT Helpdesk Ticketing System |
+                    Free State Department of Social Development
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+</body>
+</html>
+

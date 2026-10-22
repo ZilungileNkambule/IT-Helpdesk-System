@@ -1,0 +1,712 @@
+﻿
+@model ITHelpdeskAPI.Models.ProfileViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "My Profile";
+
+    var role = Model.Role ?? "";
+    var isManager = role == "manager";
+    var memberSince = Model.CreatedAt.HasValue
+        ? Model.CreatedAt.Value.ToString("dd MMMM yyyy")
+        : "Not available";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+    <title>IT Helpdesk | My Profile</title>
+
+    <style>
+        :root {
+            --navy: #172c49;
+            --blue: #2563eb;
+            --background: #f4f7fc;
+            --ink: #24334a;
+            --muted: #758298;
+            --line: #e7ecf3;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            color: var(--ink);
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 246px;
+            flex-shrink: 0;
+            min-height: 100vh;
+            background: var(--navy);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 27px 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            padding: 6px 12px 29px;
+            border-bottom: 1px solid #ffffff24;
+        }
+
+        .brand-icon {
+            display: grid;
+            place-items: center;
+            width: 39px;
+            height: 39px;
+            border-radius: 11px;
+            background: #3b82f6;
+            font-size: 23px;
+        }
+
+        .nav-caption {
+            padding: 26px 13px 10px;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: #a6b8d2;
+            font-weight: 700;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            color: #dce7f5;
+            text-decoration: none;
+            border-radius: 9px;
+            margin: 3px 0;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #345781;
+            color: white;
+        }
+
+        .nav-symbol {
+            width: 21px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 18px 10px 0;
+            border-top: 1px solid #ffffff24;
+            font-size: 12px;
+            color: #bdcce0;
+        }
+
+        .sidebar-bottom form {
+            margin-top: 14px;
+        }
+
+        .sidebar-logout {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: 1px solid #7187a4;
+            border-radius: 8px;
+            padding: 11px;
+            color: white;
+            font: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .sidebar-logout:hover {
+            background: #345781;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            background: white;
+            border-bottom: 1px solid var(--line);
+            padding: 20px 32px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .content {
+            padding: 30px 32px 44px;
+            max-width: 1250px;
+            margin: auto;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 27px;
+            color: var(--navy);
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .profile-banner {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            padding: 26px;
+            margin: 26px 0;
+        }
+
+        .avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #e0ecff;
+            color: #2357a5;
+            display: grid;
+            place-items: center;
+            font-size: 26px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .profile-banner h2 {
+            margin: 0 0 7px;
+            font-size: 20px;
+            color: var(--navy);
+        }
+
+        .profile-banner p {
+            margin: 0 0 9px;
+            color: var(--muted);
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .role-badge {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 6px 12px;
+            background: #e8f1ff;
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 22px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            padding: 26px;
+            margin-bottom: 22px;
+        }
+
+        .panel h2 {
+            margin: 0 0 8px;
+            font-size: 18px;
+            color: var(--navy);
+        }
+
+        .panel-description {
+            margin: 0 0 24px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 9px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #d9e1ec;
+            border-radius: 8px;
+            font: inherit;
+            font-size: 14px;
+            background: white;
+        }
+
+        .field input:focus {
+            outline: 2px solid #bfdbfe;
+            border-color: var(--blue);
+        }
+
+        .button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border: 0;
+            border-radius: 8px;
+            background: var(--blue);
+            color: white;
+            padding: 12px 19px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #1749c6;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span {
+            color: var(--muted);
+        }
+
+        .info-row strong {
+            color: var(--navy);
+            text-align: right;
+            text-transform: capitalize;
+        }
+
+        .status {
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .notice {
+            padding: 14px 18px;
+            border-radius: 9px;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .notice.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .notice.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px solid var(--line);
+            margin: 25px 0;
+        }
+
+        @@media (max-width: 1000px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 750px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .content {
+                padding: 20px 14px;
+            }
+
+            .profile-banner {
+                padding: 18px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="brand">
+                <span class="brand-icon">☏</span>
+                IT Helpdesk
+            </div>
+
+            <div class="nav-caption">MAIN MENU</div>
+
+            <nav aria-label="Main navigation">
+
+                <a class="nav-link" href="/Dashboard">
+                    <span class="nav-symbol">▦</span>
+                    Dashboard
+                </a>
+
+                <a class="nav-link" href="/WebTicketPages/Index">
+                    <span class="nav-symbol">☷</span>
+                    Tickets
+                </a>
+
+                
+<a class="nav-link" href="/WebTicketPages/Assign">
+    <span class="nav-symbol">⇄</span>
+    Assign Tickets
+</a>
+
+
+                @if (isManager)
+                {
+                    <a class="nav-link" href="/WebTicketPages/Assign">
+                        <span class="nav-symbol">⇄</span>
+                        Assign Tickets
+                    </a>
+
+                    <a class="nav-link" href="/WebReports">
+                        <span class="nav-symbol">▥</span>
+                        Reports
+                    </a>
+
+                    <a class="nav-link" href="/WebUsers">
+                        <span class="nav-symbol">♙</span>
+                        User Management
+                    </a>
+                }
+
+                <a class="nav-link active"
+                   href="/WebProfile"
+                   aria-current="page">
+                    <span class="nav-symbol">◉</span>
+                    Profile
+                </a>
+
+            </nav>
+
+            <div class="sidebar-bottom">
+                IT Support Portal
+
+                <form action="/Account/Logout" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <button class="sidebar-logout" type="submit">
+                        ↪ &nbsp; Log out
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+        <main class="main">
+
+            <header class="topbar">
+                IT Helpdesk / My Profile
+            </header>
+
+            <div class="content">
+
+                <h1>My Profile</h1>
+                <p class="subtitle">
+                    Update your personal details and account password.
+                </p>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="notice success">
+                        @TempData["Success"]
+                    </div>
+                }
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="notice error">
+                        @TempData["Error"]
+                    </div>
+                }
+
+                <section class="profile-banner">
+
+                    <div class="avatar">
+                        @(string.IsNullOrWhiteSpace(Model.FullName)
+                            ? "IT"
+                            : Model.FullName.Substring(0, 1).ToUpper())
+                    </div>
+
+                    <div>
+                        <h2>@Model.FullName</h2>
+                        <p>@Model.Email</p>
+                        <span class="role-badge">@Model.Role</span>
+                    </div>
+
+                </section>
+
+                <div class="grid">
+
+                    <div>
+
+                        <!-- PERSONAL INFORMATION -->
+
+                        <section class="panel">
+
+                            <h2>Personal Information</h2>
+
+                            <p class="panel-description">
+                                Edit your existing personal information.
+                            </p>
+
+                            <form action="/WebProfile/UpdateName"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <div class="field">
+                                    <label for="fullName">Full Name</label>
+
+                                    <input id="fullName"
+                                           name="fullName"
+                                           value="@Model.FullName"
+                                           minlength="2"
+                                           maxlength="150"
+                                           required />
+                                </div>
+
+                                <button class="button" type="submit">
+                                    Save Name
+                                </button>
+
+                            </form>
+
+                            <hr class="divider" />
+
+                            <form action="/WebProfile/UpdateEmail"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <div class="field">
+                                    <label for="newEmail">
+                                        Email Address
+                                    </label>
+
+                                    <input id="newEmail"
+                                           name="newEmail"
+                                           type="email"
+                                           value="@Model.Email"
+                                           autocomplete="email"
+                                           required />
+                                </div>
+
+                                <div class="field">
+                                    <label for="emailPassword">
+                                        Current Password
+                                    </label>
+
+                                    <input id="emailPassword"
+                                           name="currentPassword"
+                                           type="password"
+                                           autocomplete="current-password"
+                                           required />
+                                </div>
+
+                                <button class="button" type="submit">
+                                    Request Email Change
+                                </button>
+
+                            </form>
+
+                        </section>
+
+                        <!-- CHANGE PASSWORD -->
+
+                        <section class="panel">
+
+                            <h2>Change Password</h2>
+
+                            <p class="panel-description">
+                                Verify your current password before
+                                setting a new password.
+                            </p>
+
+                            <form action="/WebProfile/ChangePassword"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <div class="field">
+                                    <label for="currentPassword">
+                                        Current Password
+                                    </label>
+
+                                    <input id="currentPassword"
+                                           name="CurrentPassword"
+                                           type="password"
+                                           autocomplete="current-password"
+                                           required />
+                                </div>
+
+                                <div class="field">
+                                    <label for="newPassword">
+                                        New Password
+                                    </label>
+
+                                    <input id="newPassword"
+                                           name="NewPassword"
+                                           type="password"
+                                           minlength="8"
+                                           autocomplete="new-password"
+                                           required />
+                                </div>
+
+                                <div class="field">
+                                    <label for="confirmPassword">
+                                        Confirm New Password
+                                    </label>
+
+                                    <input id="confirmPassword"
+                                           name="ConfirmPassword"
+                                           type="password"
+                                           minlength="8"
+                                           autocomplete="new-password"
+                                           required />
+                                </div>
+
+                                <button class="button" type="submit">
+                                    Update Password
+                                </button>
+
+                            </form>
+
+                        </section>
+
+                    </div>
+
+                    <!-- ACCOUNT INFORMATION -->
+
+                    <div>
+
+                        <section class="panel">
+
+                            <h2>Account Information</h2>
+
+                            <p class="panel-description">
+                                Your current account details.
+                                These fields are read-only.
+                            </p>
+
+                            <div class="info-row">
+                                <span>Account Role</span>
+                                <strong>@Model.Role</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Account Status</span>
+
+                                <strong class="status @(Model.IsActive ? "active" : "inactive")">
+                                    @(Model.IsActive ? "Active" : "Inactive")
+                                </strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Member Since</span>
+                                <strong>@memberSince</strong>
+                            </div>
+
+                        </section>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        const passwordForm = document.querySelector(
+            'form[action="/WebProfile/ChangePassword"]'
+        );
+
+        passwordForm.addEventListener("submit", function (event) {
+            const newPassword =
+                document.getElementById("newPassword").value;
+
+            const confirmPassword =
+                document.getElementById("confirmPassword").value;
+
+            if (newPassword !== confirmPassword) {
+                event.preventDefault();
+                alert("The new passwords do not match.");
+            }
+        });
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,321 @@
+﻿@model ITHelpdeskAPI.Models.LoginViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "IT Helpdesk | Sign In";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                color: #223248;
+                background: #f3f6fa;
+            }
+
+            .shell {
+                display: grid;
+                grid-template-columns: minmax(340px, 46%) 1fr;
+                min-height: 100vh;
+            }
+
+            .brand {
+                background: linear-gradient(150deg, #152b43, #213e5d 65%, #245780);
+                color: #fff;
+                padding: 64px clamp(32px, 6vw, 100px);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: relative;
+                overflow: hidden;
+            }
+
+                .brand::after {
+                    content: '';
+                    position: absolute;
+                    width: 400px;
+                    height: 400px;
+                    border: 1px solid #ffffff24;
+                    border-radius: 50%;
+                    bottom: -230px;
+                    right: -150px;
+                    box-shadow: 0 0 0 65px #ffffff08, 0 0 0 130px #ffffff07;
+                    pointer-events: none;
+                }
+
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                font-size: 22px;
+                font-weight: 750;
+                letter-spacing: -.4px;
+            }
+
+            .logo-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 13px;
+                background: #ffffff1d;
+                display: grid;
+                place-items: center;
+                font-size: 26px;
+            }
+
+            .brand-copy {
+                position: relative;
+                z-index: 1;
+                max-width: 470px;
+            }
+
+            .eyebrow {
+                color: #a9d4f7;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            .brand h1 {
+                font-size: clamp(34px, 4vw, 56px);
+                line-height: 1.12;
+                letter-spacing: -1.6px;
+                margin: 20px 0;
+            }
+
+            .brand p {
+                color: #d4e2ee;
+                font-size: 17px;
+                line-height: 1.7;
+            }
+
+            .brand-footer {
+                color: #c2d2e0;
+                font-size: 13px;
+                line-height: 1.6;
+                position: relative;
+                z-index: 1;
+            }
+
+            .main {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 56px 28px;
+            }
+
+            .form-wrap {
+                width: min(100%, 430px);
+            }
+
+            .portal-tag {
+                display: inline-flex;
+                padding: 8px 13px;
+                border-radius: 999px;
+                background: #e8f2ff;
+                color: #245c9a;
+                font-size: 12px;
+                font-weight: 750;
+                margin-bottom: 22px;
+            }
+
+            .form-wrap h2 {
+                font-size: 34px;
+                letter-spacing: -1px;
+                margin: 0 0 10px;
+                color: #1a3048;
+            }
+
+            .subtitle {
+                margin: 0 0 34px;
+                color: #66788c;
+                line-height: 1.5;
+            }
+
+            label {
+                display: block;
+                margin: 19px 0 9px;
+                font-size: 14px;
+                font-weight: 650;
+                color: #34465a;
+            }
+
+            .field {
+                position: relative;
+            }
+
+            input {
+                width: 100%;
+                height: 50px;
+                padding: 12px 14px;
+                border: 1px solid #cdd7e3;
+                background: #fff;
+                border-radius: 9px;
+                font: inherit;
+                outline: none;
+                transition: border-color .2s, box-shadow .2s;
+            }
+
+                input:focus {
+                    border-color: #2d79c7;
+                    box-shadow: 0 0 0 3px #2d79c71c;
+                }
+
+            .password-field input {
+                padding-right: 74px;
+            }
+
+            .toggle-password {
+                position: absolute;
+                right: 9px;
+                top: 8px;
+                border: 0;
+                background: transparent;
+                color: #2468a7;
+                font-weight: 650;
+                padding: 8px;
+                cursor: pointer;
+            }
+
+            .sign-in {
+                display: block;
+                width: 100%;
+                height: 50px;
+                margin-top: 30px;
+                background: #2469af;
+                color: #fff;
+                border: 0;
+                border-radius: 9px;
+                font: inherit;
+                font-weight: 750;
+                cursor: pointer;
+                transition: background .2s;
+            }
+
+                .sign-in:hover {
+                    background: #194f88;
+                }
+
+            .error {
+                display: block;
+                color: #b42318;
+                font-size: 13px;
+                margin-top: 7px;
+            }
+
+            .validation-summary-valid {
+                display: none;
+            }
+
+            .validation-summary-errors {
+                padding: 10px 13px;
+                background: #fff1f0;
+                border-radius: 8px;
+                margin-bottom: 16px;
+            }
+
+                .validation-summary-errors ul {
+                    margin: 0;
+                    padding-left: 18px;
+                }
+
+            .footnote {
+                margin-top: 26px;
+                font-size: 13px;
+                color: #78889b;
+                text-align: center;
+                line-height: 1.6;
+            }
+
+            @@media (max-width: 800px) {
+                .shell {
+                    grid-template-columns: 1fr;
+                }
+
+                .brand {
+                    min-height: 230px;
+                    padding: 30px 26px;
+                    gap: 28px;
+                }
+
+                    .brand h1 {
+                        font-size: 30px;
+                        margin: 12px 0;
+                    }
+
+                    .brand p {
+                        font-size: 14px;
+                        margin-bottom: 0;
+                    }
+
+                .brand-footer {
+                    display: none;
+                }
+
+                .main {
+                    padding: 42px 24px 60px;
+                    align-items: flex-start;
+                }
+
+                .form-wrap h2 {
+                    font-size: 29px;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="brand" aria-label="IT Helpdesk branding">
+            <div class="logo"><span class="logo-icon" aria-hidden="true">🎧</span><span>IT Helpdesk</span></div>
+            <div class="brand-copy">
+                <div class="eyebrow">Support • Resolve • Manage</div>
+                <h1>Keeping your team connected.</h1>
+                <p>A central place to manage support requests, resolve technical issues and keep work moving.</p>
+            </div>
+            <div class="brand-footer">Free State Department of Social Development<br />IT Support Management Portal</div>
+        </section>
+        <main class="main">
+            <div class="form-wrap">
+                <span class="portal-tag">TECHNICIAN &amp; MANAGER PORTAL</span>
+                <h2>Welcome back</h2>
+                <p class="subtitle">Sign in to access your IT Helpdesk dashboard.</p>
+                <form action="/Account/Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="error" role="alert"></div>
+                    <label asp-for="Email">Email address</label>
+                    <div class="field"><input asp-for="Email" type="email" placeholder="Enter your email address" autocomplete="username" required /></div>
+                    <span asp-validation-for="Email" class="error"></span>
+                    <label asp-for="Password">Password</label>
+                    <div class="field password-field">
+                        <input asp-for="Password" type="password" placeholder="Enter your password" autocomplete="current-password" required />
+                        <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">Show</button>
+                    </div>
+                    <span asp-validation-for="Password" class="error"></span>
+                    <button class="sign-in" type="submit">Sign In →</button>
+                </form>
+                <p class="footnote">Access is restricted to authorized IT technicians and managers.</p>
+            </div>
+        </main>
+    </div>
+    <script>
+            const toggle = document.getElementById('togglePassword');
+            const password = document.getElementById('Password');
+            toggle.addEventListener('click', () => {
+                const show = password.type === 'password';
+                password.type = show ? 'text' : 'password';
+                toggle.textContent = show ? 'Hide' : 'Show';
+                toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+            });
+    </script>
+</body>
+</html>
+

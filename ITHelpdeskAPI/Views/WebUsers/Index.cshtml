@@ -1,0 +1,791 @@
+﻿
+@model ITHelpdeskAPI.Models.UserManagementViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "User Management";
+
+    int total = Model.Users.Count;
+    int active = Model.Users.Count(u => u.IsActive);
+    int inactive = total - active;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>IT Helpdesk | User Management</title>
+
+    <style>
+        :root {
+            --navy: #172c49;
+            --blue: #2563eb;
+            --background: #f4f7fc;
+            --ink: #24334a;
+            --muted: #758298;
+            --line: #e7ecf3;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            color: var(--ink);
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 246px;
+            flex-shrink: 0;
+            background: var(--navy);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 27px 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            padding: 6px 12px 29px;
+            border-bottom: 1px solid #ffffff24;
+        }
+
+        .brand-icon {
+            display: grid;
+            place-items: center;
+            width: 39px;
+            height: 39px;
+            border-radius: 11px;
+            background: #3b82f6;
+            font-size: 23px;
+        }
+
+        .nav-caption {
+            padding: 26px 13px 10px;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: #a6b8d2;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            color: #dce7f5;
+            text-decoration: none;
+            border-radius: 9px;
+            margin: 3px 0;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #345781;
+            color: white;
+        }
+
+        .nav-symbol {
+            width: 21px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 18px 10px 0;
+            border-top: 1px solid #ffffff24;
+            font-size: 12px;
+            color: #bdcce0;
+        }
+
+        .sidebar-bottom form {
+            margin-top: 14px;
+        }
+
+        .sidebar-logout {
+            width: 100%;
+            background: transparent;
+            border: 1px solid #7187a4;
+            border-radius: 8px;
+            padding: 11px;
+            color: white;
+            font: inherit;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .sidebar-logout:hover {
+            background: #345781;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            background: white;
+            border-bottom: 1px solid var(--line);
+            padding: 20px 32px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px 32px 44px;
+            max-width: 1600px;
+            margin: auto;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 27px;
+            color: var(--navy);
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .page-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            border: 0;
+            border-radius: 8px;
+            background: var(--blue);
+            color: white;
+            padding: 11px 17px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #1749c6;
+        }
+
+        .button.danger {
+            background: #dc2626;
+        }
+
+        .button.success {
+            background: #15803d;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 17px;
+            margin: 25px 0;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            padding: 21px;
+        }
+
+        .card span {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .card strong {
+            font-size: 29px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            overflow: hidden;
+        }
+
+        .panel-head {
+            padding: 22px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input,
+        select {
+            padding: 10px 12px;
+            border: 1px solid #d9e1ec;
+            border-radius: 8px;
+            font: inherit;
+            font-size: 13px;
+            background: white;
+        }
+
+        .filters input {
+            min-width: 230px;
+            flex: 1;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 850px;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8fafd;
+            color: var(--muted);
+        }
+
+        .role {
+            text-transform: capitalize;
+        }
+
+        .status {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 6px 11px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-form {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .action-form select {
+            min-width: 110px;
+        }
+
+        .action-form .button {
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        .notice {
+            padding: 14px 18px;
+            margin: 18px 0;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .notice.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .notice.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #0f172ab3;
+            z-index: 100;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 14px;
+            padding: 28px;
+            width: 100%;
+            max-width: 460px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-box h2 {
+            margin-top: 0;
+        }
+
+        .form-field {
+            margin-bottom: 16px;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .form-field input,
+        .form-field select {
+            width: 100%;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .button.secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        @@media (max-width: 850px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 20px 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="brand">
+                <span class="brand-icon">☏</span>
+                IT Helpdesk
+            </div>
+
+            <div class="nav-caption">MAIN MENU</div>
+
+            <a class="nav-link" href="/Dashboard">
+                <span class="nav-symbol">▦</span>
+                Dashboard
+            </a>
+
+            <a class="nav-link" href="/WebTicketPages/Index">
+                <span class="nav-symbol">☷</span>
+                Tickets
+            </a>
+
+            <a class="nav-link" href="/WebTicketPages/Assign">
+                <span class="nav-symbol">⇄</span>
+                Assign Tickets
+            </a>
+
+            <a class="nav-link" href="/WebReports">
+                <span class="nav-symbol">▥</span>
+                Reports
+            </a>
+
+            <a class="nav-link active" href="/WebUsers">
+                <span class="nav-symbol">♙</span>
+                User Management
+            </a>
+
+            <a class="nav-link" href="/WebProfile">
+                <span class="nav-symbol">◉</span>
+                Profile
+            </a>
+
+            <div class="sidebar-bottom">
+                IT Support Portal
+
+                <form action="/Account/Logout" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit" class="sidebar-logout">
+                        ↪ &nbsp; Log out
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main">
+
+            <div class="topbar">
+                IT Helpdesk / User Management
+            </div>
+
+            <div class="content">
+
+                <div class="page-head">
+                    <div>
+                        <h1>User Management</h1>
+                        <p class="subtitle">
+                            Manage user accounts, roles, and access.
+                        </p>
+                    </div>
+
+                    <button class="button"
+                            type="button"
+                            onclick="openModal()">
+                        + Add User
+                    </button>
+                </div>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="notice success">
+                        @TempData["Success"]
+                    </div>
+                }
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="notice error">
+                        @TempData["Error"]
+                    </div>
+                }
+
+                <div class="cards">
+
+                    <div class="card">
+                        <span>Total Users</span>
+                        <strong>@total</strong>
+                    </div>
+
+                    <div class="card">
+                        <span>Active Users</span>
+                        <strong>@active</strong>
+                    </div>
+
+                    <div class="card">
+                        <span>Inactive Users</span>
+                        <strong>@inactive</strong>
+                    </div>
+
+                </div>
+
+                <section class="panel">
+
+                    <div class="panel-head">
+                        <div class="filters">
+
+                            <input id="userSearch"
+                                   type="search"
+                                   placeholder="Search name or email..."
+                                   aria-label="Search users" />
+
+                            <select id="roleFilter"
+                                    aria-label="Filter by role">
+                                <option value="">All Roles</option>
+                                <option value="staff">Staff</option>
+                                <option value="technician">Technician</option>
+                                <option value="manager">Manager</option>
+                            </select>
+
+                            <select id="statusFilter"
+                                    aria-label="Filter by status">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="table-scroll">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var user in Model.Users)
+                                {
+                                    <tr class="user-row"
+                                        data-search="@(user.FullName + " " + user.Email)"
+                                        data-role="@user.Role"
+                                        data-status="@(user.IsActive ? "active" : "inactive")">
+
+                                        <td>@user.FullName</td>
+
+                                        <td>@user.Email</td>
+
+                                        <td class="role">@user.Role</td>
+
+                                        <td>
+                                            <span class="status @(user.IsActive ? "active" : "inactive")">
+                                                @(user.IsActive ? "Active" : "Inactive")
+                                            </span>
+                                        </td>
+
+                                        <td>
+
+                                            <form action="/WebUsers/UpdateRole"
+                                                  method="post"
+                                                  class="action-form">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="userId"
+                                                       value="@user.Id" />
+
+                                                <select name="role">
+                                                    <option value="staff"
+                                                            selected="@(user.Role == "staff")">
+                                                        Staff
+                                                    </option>
+
+                                                    <option value="technician"
+                                                            selected="@(user.Role == "technician")">
+                                                        Technician
+                                                    </option>
+
+                                                    <option value="manager"
+                                                            selected="@(user.Role == "manager")">
+                                                        Manager
+                                                    </option>
+                                                </select>
+
+                                                <button type="submit"
+                                                        class="button">
+                                                    Save Role
+                                                </button>
+
+                                            </form>
+
+                                            <form action="/WebUsers/ToggleStatus"
+                                                  method="post"
+                                                  class="action-form"
+                                                  onsubmit="return confirm('Are you sure you want to change this user account status?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="userId"
+                                                       value="@user.Id" />
+
+                                                <button type="submit"
+                                                        class="button @(user.IsActive ? "danger" : "success")">
+                                                    @(user.IsActive ? "Deactivate" : "Reactivate")
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ADD USER MODAL -->
+
+    <div id="addUserModal"
+         class="modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="addUserTitle">
+
+        <div class="modal-box">
+
+            <h2 id="addUserTitle">Add New User</h2>
+
+            <form action="/WebUsers/Create" method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="form-field">
+                    <label for="fullName">Full Name</label>
+
+                    <input id="fullName"
+                           name="FullName"
+                           required
+                           maxlength="150" />
+                </div>
+
+                <div class="form-field">
+                    <label for="email">Email Address</label>
+
+                    <input id="email"
+                           name="Email"
+                           type="email"
+                           required />
+                </div>
+
+                <div class="form-field">
+                    <label for="password">Temporary Password</label>
+
+                    <input id="password"
+                           name="Password"
+                           type="password"
+                           minlength="8"
+                           autocomplete="new-password"
+                           required />
+                </div>
+
+                <div class="form-field">
+                    <label for="role">User Role</label>
+
+                    <select id="role"
+                            name="Role"
+                            required>
+                        <option value="staff">Staff</option>
+                        <option value="technician">Technician</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+
+                    <button class="button secondary"
+                            type="button"
+                            onclick="closeModal()">
+                        Cancel
+                    </button>
+
+                    <button class="button"
+                            type="submit">
+                        Create User
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("addUserModal");
+
+        function openModal() {
+            modal.classList.add("open");
+        }
+
+        function closeModal() {
+            modal.classList.remove("open");
+        }
+
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeModal();
+            }
+        });
+
+        const search = document.getElementById("userSearch");
+        const roleFilter = document.getElementById("roleFilter");
+        const statusFilter = document.getElementById("statusFilter");
+
+        const rows = Array.from(
+            document.querySelectorAll(".user-row")
+        );
+
+        function filterUsers() {
+            const query = search.value.trim().toLowerCase();
+
+            for (const row of rows) {
+                const matchesSearch =
+                    row.dataset.search.toLowerCase().includes(query);
+
+                const matchesRole =
+                    !roleFilter.value ||
+                    row.dataset.role === roleFilter.value;
+
+                const matchesStatus =
+                    !statusFilter.value ||
+                    row.dataset.status === statusFilter.value;
+
+                row.style.display =
+                    matchesSearch && matchesRole && matchesStatus
+                        ? ""
+                        : "none";
+            }
+        }
+
+        [search, roleFilter, statusFilter].forEach(control => {
+            control.addEventListener("input", filterUsers);
+            control.addEventListener("change", filterUsers);
+        });
+    </script>
+</body>
+</html>
